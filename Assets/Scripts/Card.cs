@@ -7,7 +7,7 @@ public class Card : MonoBehaviour
     [SerializeField] private int _id;
     [SerializeField] private CardOwner _owner;
     [SerializeField] private TextMeshProUGUI _word;
-    [SerializeField] private Image spriteRenderer;
+    [SerializeField] private Image _spriteRenderer;
 
     public enum CardOwner { Red, Blue, Neutral, Bomb }
 
@@ -23,19 +23,19 @@ public class Card : MonoBehaviour
         switch (_owner)
         {
             case CardOwner.Red:
-                spriteRenderer.color = Color.red;
+                _spriteRenderer.color = Color.red;
                 break;
 
             case CardOwner.Blue:
-                spriteRenderer.color = Color.blue;
+                _spriteRenderer.color = Color.blue;
                 break;
 
             case CardOwner.Neutral:
-                spriteRenderer.color = new Color32(228, 205, 160, 255);
+                _spriteRenderer.color = new Color32(228, 205, 160, 255);
                 break;
 
             case CardOwner.Bomb:
-                spriteRenderer.color = Color.black;
+                _spriteRenderer.color = Color.black;
                 _word.color = Color.white;
                 break;
         }
