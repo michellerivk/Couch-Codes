@@ -2,6 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum CardOwner { Red, Blue, Neutral, Bomb } // An enum for the card type
+
 public class Card : MonoBehaviour
 {
     private string _id;
@@ -9,12 +11,10 @@ public class Card : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _word;
     [SerializeField] private Image _spriteRenderer;
 
-    public enum CardOwner { Red, Blue, Neutral, Bomb }
-
-    public void Init(string id/*, CardOwner owner*/, string word) // Card.Init(id, owner, word) in Game Manager
+    public void Init(string id, CardOwner owner, string word) // Card.Init(id, owner, word) in Game Manager
     {
         _id = id;
-        _owner = CardOwner.Neutral; // TODO: need to change
+        _owner = owner;
         _word.text = word;
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.LightTransport;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class GameManager : MonoBehaviour
 
         PrintWords();
 
-        SettingCards();
+        CreatingBoard();
     }
 
     // Loads the words from the JSON file into an array of strings
@@ -45,9 +46,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void SettingCards()
+    private void CreatingBoard()
     {
         List<string> usedWords = new List<string>();
+
+        List<string> blueCards = new List<string>();
+        List<string> redCards = new List<string>();
+        List<string> bombCards = new List<string>();
+        List<string> neutralCards = new List<string>();
+
+
 
         for (int i = 0; i < 25; i++)
         {
@@ -58,8 +66,76 @@ public class GameManager : MonoBehaviour
             while (usedWords.Contains(_wordData.words[randomIndex].id))
                 randomIndex = UnityEngine.Random.Range(1, 95);
 
-            newCard.Init(_wordData.words[randomIndex].id, _wordData.words[randomIndex].en);
             usedWords.Add(_wordData.words[randomIndex].id);
+
+            bool addedCard = RandomizeOwner(newCard, randomIndex, blueCards, redCards, bombCards, neutralCards);
+
+            while (!addedCard)
+            {
+                addedCard = RandomizeOwner(newCard, randomIndex, blueCards, redCards, bombCards, neutralCards);
+            }          
         }
+    }
+
+    private bool RandomizeOwner(Card newCard, int randomIndex, List<string> blueCards, List<string> redCards, List<string> bombCards, List<string> neutralCards)
+    {
+        CardOwner owner = (CardOwner)UnityEngine.Random.Range(0, 4);
+
+        switch (owner)
+        {
+            case CardOwner.Red:
+                if (redCards.Count < 10)
+                {
+                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
+                    redCards.Add(_wordData.words[randomIndex].id);
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+
+            case CardOwner.Blue:
+                if (blueCards.Count < 9)
+                {
+                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
+                    blueCards.Add(_wordData.words[randomIndex].id);
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+
+            case CardOwner.Neutral:
+                if (neutralCards.Count < 8)
+                {
+                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
+                    neutralCards.Add(_wordData.words[randomIndex].id);
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+
+            case CardOwner.Bomb:
+                if (bombCards.Count < 1)
+                {
+                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
+                    bombCards.Add(_wordData.words[randomIndex].id);
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+        }
+
+        return false;
     }
 }
