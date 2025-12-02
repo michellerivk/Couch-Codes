@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.LightTransport;
+
+public enum Language { English, Hebrew, Russian, Czech }
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _boardParent;
-    
+    [SerializeField] private Language _boardLanguage = Language.English;
+
 
     private WordRecordCollection _wordData;
 
@@ -18,7 +20,7 @@ public class GameManager : MonoBehaviour
 
         PrintWords();
 
-        CreatingBoard();
+        CreateBoard();
     }
 
     // Loads the words from the JSON file into an array of strings
@@ -46,7 +48,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void CreatingBoard()
+    // Creates the game board
+    private void CreateBoard()
     {
         List<string> usedWords = new List<string>();
 
@@ -55,16 +58,14 @@ public class GameManager : MonoBehaviour
         List<string> bombCards = new List<string>();
         List<string> neutralCards = new List<string>();
 
-
-
         for (int i = 0; i < 25; i++)
         {
             Card newCard = Instantiate(_cardPrefab, _boardParent);
 
-            int randomIndex = UnityEngine.Random.Range(1, 95);
+            int randomIndex = UnityEngine.Random.Range(0, _wordData.words.Length);
 
             while (usedWords.Contains(_wordData.words[randomIndex].id))
-                randomIndex = UnityEngine.Random.Range(1, 95);
+                randomIndex = UnityEngine.Random.Range(0, _wordData.words.Length);
 
             usedWords.Add(_wordData.words[randomIndex].id);
 
@@ -77,65 +78,73 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Randomizes the type of the card (blue, red, bomb, neutral)
     private bool RandomizeOwner(Card newCard, int randomIndex, List<string> blueCards, List<string> redCards, List<string> bombCards, List<string> neutralCards)
     {
         CardOwner owner = (CardOwner)UnityEngine.Random.Range(0, 4);
+        WordRecord word = _wordData.words[randomIndex];
+
+        string language = BuildLanguage(_boardLanguage, word);
 
         switch (owner)
         {
             case CardOwner.Red:
-                if (redCards.Count < 10)
+                if (redCards.Count < 9)
                 {
-                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
-                    redCards.Add(_wordData.words[randomIndex].id);
+                    newCard.Init(word.id, owner, language);
+                    redCards.Add(word.id);
                     return true;
                 }
 
                 else
-                {
                     return false;
-                }
 
             case CardOwner.Blue:
-                if (blueCards.Count < 9)
+                if (blueCards.Count < 8)
                 {
-                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
-                    blueCards.Add(_wordData.words[randomIndex].id);
+                    newCard.Init(word.id, owner, language);
+                    blueCards.Add(word.id);
                     return true;
                 }
 
                 else
-                {
                     return false;
-                }
 
             case CardOwner.Neutral:
-                if (neutralCards.Count < 8)
+                if (neutralCards.Count < 7)
                 {
-                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
-                    neutralCards.Add(_wordData.words[randomIndex].id);
+                    newCard.Init(word.id, owner, language);
+                    neutralCards.Add(word.id);
                     return true;
                 }
 
                 else
-                {
                     return false;
-                }
 
             case CardOwner.Bomb:
                 if (bombCards.Count < 1)
                 {
-                    newCard.Init(_wordData.words[randomIndex].id, owner, _wordData.words[randomIndex].en);
-                    bombCards.Add(_wordData.words[randomIndex].id);
+                    newCard.Init(word.id, owner, language);
+                    bombCards.Add(word.id);
                     return true;
                 }
-
                 else
-                {
                     return false;
-                }
         }
 
         return false;
+    }
+
+    // Returns the language according to the chosen language
+    private string BuildLanguage(Language language, WordRecord record)
+    {
+        switch (language)
+        {
+            case Language.English: return record.en;
+            case Language.Hebrew: return record.he;
+            case Language.Russian: return record.ru;
+            case Language.Czech: return record.cs;
+            default: return record.en;
+        }
     }
 }

@@ -40,9 +40,4 @@ public class Card : MonoBehaviour
                 break;
         }
     }
-
-    public void Start()
-    {
-        RevealCard();
-    }
 }

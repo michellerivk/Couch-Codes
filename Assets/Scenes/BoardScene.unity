@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _cardPrefab: {fileID: 7178510915811398810, guid: 4afc65f9e44a73745a64a4f6cc42621e, type: 3}
   _boardParent: {fileID: 1368747885}
+  _boardLanguage: 0
 --- !u!4 &5410694
 Transform:
   m_ObjectHideFlags: 0
