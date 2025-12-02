@@ -4,17 +4,17 @@ using UnityEngine.UI;
 
 public class Card : MonoBehaviour
 {
-    [SerializeField] private int _id;
-    [SerializeField] private CardOwner _owner;
+    private string _id;
+    private CardOwner _owner;
     [SerializeField] private TextMeshProUGUI _word;
     [SerializeField] private Image _spriteRenderer;
 
     public enum CardOwner { Red, Blue, Neutral, Bomb }
 
-    public void Init(int id, CardOwner owner, string word) // Card.Init(id, owner, word) in Game Manager
+    public void Init(string id/*, CardOwner owner*/, string word) // Card.Init(id, owner, word) in Game Manager
     {
         _id = id;
-        _owner = owner;
+        _owner = CardOwner.Neutral; // TODO: need to change
         _word.text = word;
     }
 
