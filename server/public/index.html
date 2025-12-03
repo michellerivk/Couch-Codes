@@ -20,10 +20,17 @@
     </div>
 
     <div> 
-      <label>Role</label> <!-- Buttons to choose a role -->
+      <label>Choose your role:</label> <!-- Buttons to choose a role -->
       <div>
         <button data-role="guesser">Guesser</button>
-        <button data-role="clue">Clue Master</button>
+        <button data-role="clue">Clue Master</button><br>
+
+        <label for="team x ">Choose a team:</label><br>
+        <select name="team" id="team">
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+        </select>
+        
       </div>
     </div>
 
@@ -33,10 +40,12 @@
 
   <div id="guesser-screen"> 
     <!-- fill in later -->
+    Game Started: Guesser
   </div>
 
   <div id="clue-screen"> 
     <!-- fill in later -->
+    <label>Game Started: Code Master</label>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -71,13 +80,14 @@
     document.getElementById("joinBtn").addEventListener("click", () => { // Get inputs
       const name = document.getElementById("playerName").value;
       const room = document.getElementById("roomCode").value;
+      const team = document.getElementById("team").value;
       const outputParagraph = document.getElementById("output");
 
-      const payload = { name, room, role: selectedRole };
+      const payload = { name, room, role: selectedRole, team };
         console.log("Emitting joinRoom:", payload);
         socket.emit("joinRoom", payload);
 
-      outputParagraph.textContent = "You entered: " + name + ", role: " + selectedRole + ", room: " + room;
+      outputParagraph.textContent = "You entered: " + name + " ,team: "+ team +", role: " + selectedRole + ", room: " + room;
     });
   </script>
 </body>
