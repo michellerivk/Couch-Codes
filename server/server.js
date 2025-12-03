@@ -1,6 +1,7 @@
 const http = require('http'); // Loads node's built in HTTP module that lets us create the http server
-const fs = require('fs');     // Loads the file system module that lets us read / write in files
+const fs = require('fs');     // Loads the file system module that lets us read/write in files
 const path = require('path'); // Loads the path helper module that's used to build paths in a Cross-Platform-Save way
+const { Server } = require('socket.io'); // Loads the socket.io module, pulls out it's server class into a variable
 
 const server = http.createServer((req, res) => { // Creates a new HTTP server. req = incoming request, res = outgoing response
 console.log('Request for:', req.url); // Log what URL has been requested
@@ -34,6 +35,24 @@ console.log('Request for:', req.url); // Log what URL has been requested
         res.end('Not found');
     }
   }
+});
+
+const io = new Server(server, { // Creates a socket.io server instance named io.
+  cors: { origin: "*" } // Allow any webpage origin join to connect via socket.io ( Ok for LAN )
+});
+
+io.on("connection", (socket) => { // Listens to clients connecting. socket = the connection of the client
+  console.log("Client connected:", socket.id); // GIving each client a unique ID
+
+  socket.on("disconnect", () => { // Listens to clients disconnecting
+    console.log("Client disconnected:", socket.id); // Logs the disconnect
+  });
+
+  socket.on("joinRoom", (data) => {
+    console.log("joinRoom from", socket.id, data);
+  });
+
+
 });
 
 const PORT = 3000;

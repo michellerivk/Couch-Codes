@@ -11,36 +11,73 @@
   <div id="join-screen">
     <div>
       <label>Player name</label>
-      <input id="playerName" type="text" placeholder="Your name" />
+      <input id="playerName" type="text" placeholder="Your name" /> <!-- A place to enter your name -->
     </div>
 
     <div>
       <label>Room code</label>
-      <input id="roomCode" type="text" placeholder="1234" />
+      <input id="roomCode" type="text" placeholder="1234" /> <!-- A place to enter your room code -->
     </div>
 
-    <div>
-      <label>Role</label>
+    <div> 
+      <label>Role</label> <!-- Buttons to choose a role -->
       <div>
         <button data-role="guesser">Guesser</button>
         <button data-role="clue">Clue Master</button>
-        <button data-role="spectator">Spectator</button>
       </div>
     </div>
 
-    <button id="joinBtn">Join Game</button>
+    <button id="joinBtn">Join Game</button> <!-- Join game button -->
+    <p id="output"></p> <!-- Debugging: Place to present the input of the name -->
   </div>
 
-  <div id="game-screen" style="display:none;">
-    <!-- later: player view with words -->
+  <div id="guesser-screen"> 
+    <!-- fill in later -->
   </div>
 
-  <script>
-    document.getElementById("joinBtn").addEventListener("click", () => {
+  <div id="clue-screen"> 
+    <!-- fill in later -->
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script> 
+    const socket = io(); // connect to the same server that served this page
+
+    socket.on("connect", () => {
+    console.log("Connected to server with id:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+    console.log("Disconnected from server");
+    });
+
+    let selectedRole = null;
+
+    const roleButtons = document.querySelectorAll("button[data-role]"); // Find all button elements in the page that have a data-role attribute
+
+    roleButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+        
+        selectedRole = btn.dataset.role; // store selected role
+
+        roleButtons.forEach(b => b.classList.remove("selected")); // clear others, mark this
+        btn.classList.add("selected");
+
+        console.log("Selected role:", selectedRole);
+        });
+    });
+
+    document.getElementById("joinBtn").addEventListener("click", () => { // Get inputs
       const name = document.getElementById("playerName").value;
       const room = document.getElementById("roomCode").value;
-      console.log("Join clicked:", { name, room });
-      // later: send to server via Socket.io
+      const outputParagraph = document.getElementById("output");
+
+      const payload = { name, room, role: selectedRole };
+        console.log("Emitting joinRoom:", payload);
+        socket.emit("joinRoom", payload);
+
+      outputParagraph.textContent = "You entered: " + name + ", role: " + selectedRole + ", room: " + room;
     });
   </script>
 </body>
