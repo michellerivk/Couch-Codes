@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     {
         LoadWords();
 
-        PrintWords();
+        //PrintWords();
 
         CreateBoard();
     }
