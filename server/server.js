@@ -55,7 +55,21 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
   const roomCode = room.toUpperCase(); // Uppercase the code incase there are letters in it (for normalization)
 
   if (!rooms[roomCode]) { // If the room doesn't exist
+    
+    if (role !== "host") {
+      socket.emit("joinError", "Host hasn't started this room yet.");
+      return;
+    }
+
     rooms[roomCode] = { players: {} }; // Create an empty player inside a room so that on connection we will get the player's info
+  }
+
+  if (role !== "host") { // If a non host joins - reject him
+    const hasHost = Object.values(rooms[roomCode].players).some(p => p.role === "host");
+    if (!hasHost) {
+      socket.emit("joinError", "Host hasn't joined this room yet.");
+      return;
+    }
   }
 
   rooms[roomCode].players[socket.id] = { // Store the info of the player in the storage object
