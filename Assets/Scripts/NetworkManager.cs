@@ -13,7 +13,7 @@ public class NetworkManager : MonoBehaviour
 
     public SocketIOUnity socket { get; private set; }
 
-    private void Start() // We want to get the code from the LobbyManger.Awake() first
+    private void Start() // I want to get the code from the LobbyManger.Awake() first
     {
         // Using the singleton Data Structure to keep the network running between scenes
         if (Instance != null && Instance != this)
@@ -34,6 +34,7 @@ public class NetworkManager : MonoBehaviour
         HandleSocketConnection();
     }
 
+    // Connects to the Node using sockets
     public void HandleSocketConnection()
     {
         var uri = new Uri("http://localhost:3000"); // Where the node server is
@@ -89,5 +90,27 @@ public class NetworkManager : MonoBehaviour
 
         Debug.Log("Connecting to Node server at " + uri);
         socket.Connect();
+    }
+
+    // Sends a message to the node that the game has started + room code
+    public void OnStartGameButtonPressed()
+    {
+        if (!_lm.canSwitchScene) // Checks if the scene can be even switched before sending anything to the Node
+        {
+            return;
+        }
+
+        if (NetworkManager.Instance == null || NetworkManager.Instance.socket == null) // If there is no socket return
+        {
+            Debug.LogWarning("No Nsocket yet, can't send startGame.");
+            return;
+        }
+
+        NetworkManager.Instance.socket.Emit("startGame", new
+        {
+            room = _lm.roomCode
+        });
+
+        Debug.Log("Sent startGame for room " + _lm.roomCode);
     }
 }

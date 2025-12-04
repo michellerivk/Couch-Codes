@@ -103,6 +103,14 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
 
     io.to(roomCode).emit("roomUpdate", { room: roomCode, players }); // Tell the user the update room state
 
+    socket.on("startGame", ({ room }) => {
+      const roomCode = room.toUpperCase();
+      console.log(`startGame received for room ${roomCode}`);
+
+      // TODO: broadcast to players, tell Unity to switch scene, etc.
+      io.to(roomCode).emit("gameStarted", { room: roomCode });
+    });
+
   });
 
     socket.on("disconnect", () => { // Listens to clients disconnecting

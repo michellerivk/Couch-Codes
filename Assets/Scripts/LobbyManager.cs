@@ -3,9 +3,11 @@ using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static PlayerData;
 
 public class LobbyManager : MonoBehaviour
@@ -17,12 +19,22 @@ public class LobbyManager : MonoBehaviour
 
     public string roomCode { get; private set; }
 
+    private int _redPlayers = 0;
+    private int _bluePlayers = 0;
+    private int _codeMasters = 0;
+
+    public bool canSwitchScene { get; private set; } = false;
+
+    Dictionary<string, string> _codeMastersTeam = new Dictionary<string, string>();
+
+
     private void Awake()
     {
         roomCode = CreateRoomCode();
         _codeText.text += roomCode;
     }
 
+    // Creates a random room code
     private string CreateRoomCode()
     {
         string roomCode = "";
@@ -45,6 +57,7 @@ public class LobbyManager : MonoBehaviour
         return roomCode;
     }
 
+    // Adds a player to his chosen team
     public void AddTeamPlayer(string name, string team, string role)
     {
         string fullRole = "";
@@ -98,8 +111,15 @@ public class LobbyManager : MonoBehaviour
                 break;
         }
     }
+
+    // Updates the players in the lobby, if another one joined
     public void UpdateLobby(List<PlayersData> players)
     {
+        _redPlayers = 0;
+        _bluePlayers = 0;
+        _codeMasters = 0;
+        _codeMastersTeam.Clear();
+
         // Destroy the existing players so there won't be any duplicates
         foreach (Transform child in _redTeam)
         {
@@ -114,7 +134,55 @@ public class LobbyManager : MonoBehaviour
         foreach (var player in players)
         {
             AddTeamPlayer(player.name, player.team, player.role);
+
+            if (player.team == "red")
+                _redPlayers++;
+
+            if (player.team == "blue")
+                _bluePlayers++;
+
+            if (player.role == "clue")
+            {
+                _codeMastersTeam.Add(player.name, player.team);
+                _codeMasters++;
+            }
         }
     }
 
+    public void CheckStartingConditions(string scene)
+    {
+        // Disabled for testing, but need to enable before a build!!!
+        /*
+        if (_redPlayers < 2 || _bluePlayers < 2 || _codeMasters < 2)
+        {
+            Debug.Log("Not enough players");
+            return;
+        }
+        */
+        
+
+
+        if ((_redPlayers + _bluePlayers) > 10)
+        {
+            Debug.Log("Too many players");
+            return;
+        }
+
+        if (_codeMastersTeam.Values.GroupBy(value => value).Any(group => group.Count() > 1))
+        {
+            var groups = _codeMastersTeam.Values.GroupBy(value => value);
+
+            foreach (var group in groups)
+            {
+                if (group.Count() > 1)
+                {
+                    Debug.Log($"There are more than 1 Clue Master in the {group.Key} team");
+                    return;
+                }
+            }
+        }
+
+        canSwitchScene = true;
+        SceneSwitcher.SwitchScene(scene);
+    }
 }
