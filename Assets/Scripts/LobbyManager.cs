@@ -23,11 +23,6 @@ public class LobbyManager : MonoBehaviour
         _codeText.text += roomCode;
     }
 
-    private void Start()
-    {
-        AddTeamPlayer("Michelle", "red" , "Code Master");
-    }
-
     private string CreateRoomCode()
     {
         string roomCode = "";
