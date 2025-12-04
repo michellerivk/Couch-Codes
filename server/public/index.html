@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Couch Codes</title>
+
+    <link rel="stylesheet" href="styles.css"> <!-- Linking the css file -->
+
   </head>
   <body>
   <h1>Couch Codes</h1>
@@ -45,7 +48,7 @@
 
   <div id="clue-screen"> 
     <!-- fill in later -->
-    <label>Game Started: Code Master</label>
+    <label>Game Started: Clue Master</label>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -53,12 +56,48 @@
   <script> 
     const socket = io(); // connect to the same server that served this page
 
+    const joinScreen    = document.getElementById("join-screen");
+    const guesserScreen = document.getElementById("guesser-screen");
+    const clueScreen    = document.getElementById("clue-screen");
+    const outputParagraph = document.getElementById("output");
+
     socket.on("connect", () => {
-    console.log("Connected to server with id:", socket.id);
+      console.log("Connected to server with id:", socket.id);
     });
 
     socket.on("disconnect", () => {
-    console.log("Disconnected from server");
+      console.log("Disconnected from server");
+    });
+
+    socket.on("joinSuccess", ({ room, name, role, team }) => {
+      console.log("joinSuccess:", room, name, role, team);
+
+      outputParagraph.textContent = `Joined room ${room} as ${team} ${role}`;
+
+      joinScreen.style.display = "none"; // Hide the join screen
+
+      if (role === "guesser") { // Show the guesser screen
+        guesserScreen.style.display = "block";
+        clueScreen.style.display = "none";
+      } 
+      else if (role === "clue") { // Show the Clue Master screen
+        clueScreen.style.display = "block";
+        guesserScreen.style.display = "none";
+      } 
+      else { // If I add other roles in the future
+        guesserScreen.style.display = "none";
+        clueScreen.style.display = "none";
+      }
+    });
+
+    socket.on("joinError", (message) => {
+      console.log("joinError:", message);
+      outputParagraph.textContent = message;
+
+      // Make sure we stay on the join screen
+      joinScreen.style.display = "block";
+      guesserScreen.style.display = "none";
+      clueScreen.style.display = "none";
     });
 
     let selectedRole = null;
@@ -83,11 +122,16 @@
       const team = document.getElementById("team").value;
       const outputParagraph = document.getElementById("output");
 
+    if (!name || !room || !selectedRole || !team) {
+        outputParagraph.textContent = "Please fill name, room, role and team.";
+        return;
+      }
+
       const payload = { name, room, role: selectedRole, team };
         console.log("Emitting joinRoom:", payload);
         socket.emit("joinRoom", payload);
 
-      outputParagraph.textContent = "You entered: " + name + " ,team: "+ team +", role: " + selectedRole + ", room: " + room;
+      outputParagraph.textContent = "Joining room...";
     });
   </script>
 </body>

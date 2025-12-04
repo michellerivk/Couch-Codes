@@ -23,18 +23,28 @@ console.log('Request for:', req.url); // Log what URL has been requested
       res.end(data); // Sends the data we got to the browser (The contents of the index.html page)
     });
   } 
-  else {
-    if (req.url === '/favicon.ico') { // A page for the little icon of the website
-        res.writeHead(204); // 204 = No Content
-        res.end();
+  else if (req.url === '/styles.css') {
+    const cssPath = path.join(__dirname, 'public', 'styles.css');
+    fs.readFile(cssPath, (err, data) => {
+      if (err) {
+        console.error('Error reading styles.css:', err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Error loading CSS');
         return;
-        }
-
-    else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' }); // If the client requesting something other than index.html, send him 404 = page not found
-        res.end('Not found');
-    }
+      }
+      res.writeHead(200, { 'Content-Type': 'text/css' });
+      res.end(data);
+    });
   }
+  else if (req.url === '/favicon.ico') {
+    res.writeHead(204);
+    res.end();
+  }
+  else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not found');
+  }
+
 });
 
 const io = new Server(server, { // Creates a socket.io server instance named io.
@@ -72,6 +82,17 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     }
   }
 
+  const normalizedNewName = name.toLowerCase().trim(); // Trip the spaces in the name
+
+  const nameTaken = Object.values(rooms[roomCode].players).some(p => // Check if this name already exists
+    p.name && p.name.toLowerCase().trim() === normalizedNewName      // .some - checks if at least one element in this array matches this condition
+  );
+
+  if (nameTaken) { // If the name exists, return an error
+    socket.emit("joinError", "That name is already taken in this room. Please choose another.");
+    return;
+  }
+  
   rooms[roomCode].players[socket.id] = { // Store the info of the player in the storage object
       name, // Player name
       role, // Player role

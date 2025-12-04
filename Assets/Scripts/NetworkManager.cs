@@ -65,12 +65,12 @@ public class NetworkManager : MonoBehaviour
 
         socket.OnDisconnected += (sender, e) => // Disconnect log
         {
-            Debug.Log("Unity socket disconnected: " + e);
+            Debug.Log($"Unity socket disconnected: {e}");
         };
 
         socket.OnUnityThread("roomUpdate", response => // Listen to the roomUpdate event, to update the lobby
         {
-            Debug.Log("roomUpdate from server: " + response.ToString());
+            Debug.Log($"roomUpdate from server: {response.ToString()}");
 
             // Parse the JSON response
             var json = response.ToString();
@@ -88,7 +88,7 @@ public class NetworkManager : MonoBehaviour
             _lm.UpdateLobby(data.players);
         });
 
-        Debug.Log("Connecting to Node server at " + uri);
+        Debug.Log($"Connecting to Node server at {uri}");
         socket.Connect();
     }
 
@@ -111,6 +111,6 @@ public class NetworkManager : MonoBehaviour
             room = _lm.roomCode
         });
 
-        Debug.Log("Sent startGame for room " + _lm.roomCode);
+        Debug.Log($"Sent startGame for room {_lm.roomCode}");
     }
 }
