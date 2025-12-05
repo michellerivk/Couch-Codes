@@ -28,7 +28,7 @@
         <button data-role="guesser">Guesser</button>
         <button data-role="clue">Clue Master</button><br>
 
-        <label for="team x ">Choose a team:</label><br>
+        <label for="team">Choose a team:</label><br>
         <select name="team" id="team">
             <option value="red">Red</option>
             <option value="blue">Blue</option>
@@ -39,7 +39,7 @@
 
     <button id="joinBtn">Join Game</button> <!-- Join game button -->
     <p id="output"></p> <!-- Debugging: Place to present the input of the name -->
-  </div>`
+  </div>
 
   <div id="lobby-screen">
     <h2>Lobby</h2>
@@ -57,10 +57,10 @@
     <label>Game Started: Clue Master</label>
 
     <label>Clue Word:</label>
-    <input id="playerName" type="text" placeholder="Your Clue" />
+    <input id="clueWord" type="text" placeholder="Your Clue" />
 
     <label>How many</label>
-    <select name="team" id="team">
+    <select name="clueNumber" id="clueNumber">
       <option value="0">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
@@ -73,6 +73,8 @@
       <option value="9">9</option>
       <option value="infinity">infinty</option>
     </select>
+
+    <button id="submitClue">Submit Clue</button>
 
 
   </div>
@@ -92,6 +94,9 @@
     const clueScreen    = document.getElementById("clue-screen");
     const outputParagraph = document.getElementById("output");
     const lobbyInfo     = document.getElementById("lobby-info");
+    const clueWordInput   = document.getElementById("clueWord");
+    const clueNumberInput = document.getElementById("clueNumber");
+    const submitClueBtn   = document.getElementById("submitClue");
 
     socket.on("connect", () => {
       console.log("Connected to server with id:", socket.id);
@@ -183,6 +188,30 @@
         socket.emit("joinRoom", payload);
 
       outputParagraph.textContent = "Joining room...";
+    });
+
+    submitClueBtn.addEventListener("click", () => {
+      if (myRole !== "clue") { // If a non clue master ssends a clue -> return
+        console.log("Only clue masters can submit a clue.");
+        return;
+      }
+
+      const clueWord = clueWordInput.value.trim();
+      const clueNumber = clueNumberInput.value;
+
+      if (!clueWord) { // If the field is empty -> return
+        alert("Please enter a clue word.");
+        return;
+      }
+
+      if (!myRoom) { // If there's no room -> return
+        console.warn("No room stored yet, can't submit clue.");
+        return;
+      }
+
+      const payload = { room: myRoom, clueWord, clueNumber };
+      console.log("Emitting submitClue:", payload);
+      socket.emit("submitClue", payload);
     });
   </script>
 </body>

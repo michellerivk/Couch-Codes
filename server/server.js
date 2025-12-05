@@ -89,7 +89,7 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
   );
 
   if (nameTaken) { // If the name exists, return an error
-    socket.emit("joinError", "That name is already taken in this room. Please choose another.");
+    socket.emit("joinError", "That username is already taken in this room. Please choose another.");
     return;
   }
   
@@ -130,6 +130,47 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     console.log(`startGame received for room ${roomCode}`);
 
     io.to(roomCode).emit("gameStarted", { room: roomCode });
+  });
+
+  socket.on("submitClue", ({ room, clueWord, clueNumber }) => { // A listener for submiting a clue
+    if (!room || !clueWord || !clueNumber) { // If the room , the clue, or the number dont exist -> return
+      socket.emit("joinError", "Missing clue data.");
+      return;
+    }
+
+    const roomCode = room.toUpperCase();
+    const roomData = rooms[roomCode];
+
+    if (!roomData) { // If there is no data in the room (players, for example) -> return
+      socket.emit("joinError", "Room does not exist.");
+      return;
+    }
+
+    const player = roomData.players[socket.id];
+    if (!player) {
+      socket.emit("joinError", "You are not part of this room.");
+      return;
+    }
+
+    if (player.role !== "clue") {
+      socket.emit("joinError", "Only clue masters can submit clues.");
+      return;
+    }
+
+    console.log(
+      `Clue from ${player.name} in room ${roomCode}:`,
+      clueWord,
+      clueNumber
+    );
+
+    // Broadcast the new clue to everyone in the room (Host + Clients)
+    io.to(roomCode).emit("newClue", {
+      room: roomCode,
+      clueWord,
+      clueNumber,
+      team: player.team,
+      from: player.name    // optional: who sent it
+    });
   });
 
     socket.on("disconnect", () => { // Listens to clients disconnecting

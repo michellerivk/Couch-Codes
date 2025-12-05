@@ -1,25 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 
 public enum Language { English, Hebrew, Russian, Czech }
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     [SerializeField] private Card _cardPrefab;
     [SerializeField] private Transform _boardParent;
     [SerializeField] private Language _boardLanguage = Language.English;
-
+    [SerializeField] private TextMeshProUGUI _clueText;
+    [SerializeField] private TextMeshProUGUI _clueNumber;
 
     private WordRecordCollection _wordData;
 
     private void Awake()
     {
+        // Singleton setup
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("Multiple GameManager instances detected, destroying the new one.");
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
         LoadWords();
-
-        //PrintWords();
-
+         
         CreateBoard();
     }
 
@@ -146,5 +157,18 @@ public class GameManager : MonoBehaviour
             case Language.Czech: return record.cs;
             default: return record.en;
         }
+    }
+
+    // Setting a new clue after getting it from a Clue Master
+    public void SetClue(string clueWord, string clueNumber, string team)
+    {
+        if (_clueText == null || _clueNumber == null) // Make sure the clue texts are assigned
+        {
+            Debug.LogWarning("GameManager: clue text fields are missing.");
+            return;
+        }
+
+        _clueText.text = clueWord;
+        _clueNumber.text = clueNumber;
     }
 }
