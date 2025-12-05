@@ -138,4 +138,15 @@ public class NetworkManager : MonoBehaviour
 
         Debug.Log($"Sent startGame for room {_lm.roomCode}");
     }
+
+    public void AfterStatusChange()
+    {
+        socket.Emit("turnStateUpdate", new
+        {
+            room = _lm.roomCode,
+            activeTeam = GameManager.Instance._currentTeam.ToString().ToLower(), // The current team playing
+            phase = GameManager.Instance._currentStatus.ToString(), // The status of the game
+            guessesRemaining = GameManager.Instance._guessesRemaining // The amount of guesses left
+        });
+    }
 }

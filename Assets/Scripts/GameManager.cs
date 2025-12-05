@@ -5,18 +5,24 @@ using TMPro;
 using UnityEngine;
 
 public enum Language { English, Hebrew, Russian, Czech }
+public enum Team { red, blue }
+public enum Status { WaitingForClue, WaitingForGuesses, GameOver }
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [SerializeField] private Card _cardPrefab;
-    [SerializeField] private Transform _boardParent;
-    [SerializeField] private Language _boardLanguage = Language.English;
-    [SerializeField] private TextMeshProUGUI _clueText;
-    [SerializeField] private TextMeshProUGUI _clueNumber;
+    [SerializeField] private Card _cardPrefab; // A card on the board
+    [SerializeField] private Transform _boardParent; // The board
+    [SerializeField] private Language _boardLanguage = Language.English; // The language of the board
+    [SerializeField] private TextMeshProUGUI _clueText; // The given clue
+    [SerializeField] private TextMeshProUGUI _clueNumber; // The amount of words the clue refers to
 
-    private WordRecordCollection _wordData;
+    private WordRecordCollection _wordData; // The data of the word on the card
+
+    public Team _currentTeam { get; private set; } // The team that's currently playing
+    public Status _currentStatus { get; private set; } // The status of the game
+    public int _guessesRemaining { get; private set; } // Amount of guesses left
 
     private void Awake()
     {

@@ -171,6 +171,11 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
       team: player.team,
       from: player.name    // optional: who sent it
     });
+
+    socket.on("turnStateUpdate", data => {
+      const roomCode = data.room.toUpperCase();
+      io.to(roomCode).emit("turnStateUpdate", data);
+    });
   });
 
     socket.on("disconnect", () => { // Listens to clients disconnecting

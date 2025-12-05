@@ -154,7 +154,23 @@
         guesserScreen.style.display = "none";
         clueScreen.style.display = "none";
       }
-    })
+    }); //Was without ;?
+
+    socket.on("turnStateUpdate", ({ activeTeam, phase, guessesRemaining }) => {
+      const isMyTeam = (myTeam === activeTeam);
+
+      const canSubmitClue = isMyTeam && myRole === "clue" && phase === "WaitingForClue";
+
+      const canGuess = isMyTeam && myRole === "guesser" && phase === "WaitingForGuesses";
+
+      // - If canSubmitClue == false - disable clue inputs + button
+      // - If canGuess == false - disable guess UI
+
+      const waitingText = `Waiting for ${activeTeam.toUpperCase()} team...`;
+      if (!isMyTeam) {
+        // Show “Waiting for RED team to play”
+      }
+    });
 
     let selectedRole = null;
 
