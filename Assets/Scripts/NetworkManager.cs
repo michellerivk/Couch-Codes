@@ -42,8 +42,8 @@ public class NetworkManager : MonoBehaviour
         socket = new SocketIOUnity(uri, new SocketIOOptions // Create a socket
         {
             Transport = SocketIOClient.Transport.TransportProtocol.WebSocket
-            // Can add query for AUTH in the future (Prob. won't)
         });
+
         socket.JsonSerializer = new NewtonsoftJsonSerializer();
 
         socket.unityThreadScope = UnityThreadScope.Update; // Any 'OnUnityThread' callbacks from this socket should be executed during the Update phase.
@@ -88,6 +88,31 @@ public class NetworkManager : MonoBehaviour
             _lm.UpdateLobby(data.players);
         });
 
+        socket.OnUnityThread("newClue", response =>
+        {
+            NewClueData data = null;
+
+            try // Try to get the word data out of the Node message
+            {
+                data = response.GetValue<NewClueData>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to parse newClue: " + ex.Message);
+                return;
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("newClue data was null");
+                return;
+            }
+
+            Debug.Log($"New clue for room {data.room}: {data.clueWord} ({data.clueNumber}) from {data.from}, team {data.team}");
+
+            GameManager.Instance.SetClue(data.clueWord, data.clueNumber, data.team);
+        });
+
         Debug.Log($"Connecting to Node server at {uri}");
         socket.Connect();
     }
@@ -102,7 +127,7 @@ public class NetworkManager : MonoBehaviour
 
         if (NetworkManager.Instance == null || NetworkManager.Instance.socket == null) // If there is no socket return
         {
-            Debug.LogWarning("No Nsocket yet, can't send startGame.");
+            Debug.LogWarning("No socket yet, can't send startGame.");
             return;
         }
 
