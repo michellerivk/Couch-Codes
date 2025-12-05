@@ -39,6 +39,12 @@
 
     <button id="joinBtn">Join Game</button> <!-- Join game button -->
     <p id="output"></p> <!-- Debugging: Place to present the input of the name -->
+  </div>`
+
+  <div id="lobby-screen">
+    <h2>Lobby</h2>
+    <!-- fill in later -->
+    <p id="lobby-info">Waiting for the host to start the game...</p>
   </div>
 
   <div id="guesser-screen"> 
@@ -49,6 +55,26 @@
   <div id="clue-screen"> 
     <!-- fill in later -->
     <label>Game Started: Clue Master</label>
+
+    <label>Clue Word:</label>
+    <input id="playerName" type="text" placeholder="Your Clue" />
+
+    <label>How many</label>
+    <select name="team" id="team">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="infinity">infinty</option>
+    </select>
+
+
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -56,10 +82,16 @@
   <script> 
     const socket = io(); // connect to the same server that served this page
 
+    let myRoom = null;
+    let myRole = null;
+    let myTeam = null;
+
     const joinScreen    = document.getElementById("join-screen");
+    const lobbyScreen   = document.getElementById("lobby-screen");
     const guesserScreen = document.getElementById("guesser-screen");
     const clueScreen    = document.getElementById("clue-screen");
     const outputParagraph = document.getElementById("output");
+    const lobbyInfo     = document.getElementById("lobby-info");
 
     socket.on("connect", () => {
       console.log("Connected to server with id:", socket.id);
@@ -72,21 +104,20 @@
     socket.on("joinSuccess", ({ room, name, role, team }) => {
       console.log("joinSuccess:", room, name, role, team);
 
+      // Remember info for when joining the actual room and not the lobby
+      myRoom = room;
+      myRole = role;
+      myTeam = team;
+
       outputParagraph.textContent = `Joined room ${room} as ${team} ${role}`;
 
       joinScreen.style.display = "none"; // Hide the join screen
+      lobbyScreen.style.display  = "block"; // Show the lobby screen
+      guesserScreen.style.display = "none";
+      clueScreen.style.display    = "none";
 
-      if (role === "guesser") { // Show the guesser screen
-        guesserScreen.style.display = "block";
-        clueScreen.style.display = "none";
-      } 
-      else if (role === "clue") { // Show the Clue Master screen
-        clueScreen.style.display = "block";
-        guesserScreen.style.display = "none";
-      } 
-      else { // If I add other roles in the future
-        guesserScreen.style.display = "none";
-        clueScreen.style.display = "none";
+      if (lobbyInfo) {
+        lobbyInfo.textContent = `Room ${room} – You are ${team} ${role}. Waiting for host to start...`;
       }
     });
 
@@ -99,6 +130,26 @@
       guesserScreen.style.display = "none";
       clueScreen.style.display = "none";
     });
+
+    socket.on("gameStarted", ({room}) => {
+      if(myRoom && room != myRoom) // Return if started for a different room
+        return;
+
+      lobbyScreen.style.display = "none";
+
+      if (myRole === "guesser") { // Show the guesser screen
+        guesserScreen.style.display = "block";
+        clueScreen.style.display = "none";
+      } 
+      else if (myRole === "clue") { // Show the Clue Master screen
+        clueScreen.style.display = "block";
+        guesserScreen.style.display = "none";
+      } 
+      else { // If I add other roles in the future
+        guesserScreen.style.display = "none";
+        clueScreen.style.display = "none";
+      }
+    })
 
     let selectedRole = null;
 

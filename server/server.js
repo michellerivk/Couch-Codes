@@ -6,7 +6,7 @@ const { Server } = require('socket.io'); // Loads the socket.io module, pulls ou
 const server = http.createServer((req, res) => { // Creates a new HTTP server. req = incoming request, res = outgoing response
 console.log('Request for:', req.url); // Log what URL has been requested
 
-  if (req.url === '/' || req.url === '/index.html') { // If the browser request '/' or '/index' we send the index.html file
+  if (req.url === '/' || req.url === '/index.html') { // If the browser request '/' or '/index', send the index.html file
     const filePath = path.join(__dirname, 'public', 'index.html'); //__dirname = the folder where the server.js file lives.
                                                                    // Creates the full path of the index.html file 
 
@@ -23,20 +23,20 @@ console.log('Request for:', req.url); // Log what URL has been requested
       res.end(data); // Sends the data we got to the browser (The contents of the index.html page)
     });
   } 
-  else if (req.url === '/styles.css') {
-    const cssPath = path.join(__dirname, 'public', 'styles.css');
+  else if (req.url === '/styles.css') { // If the client is trying to reach the css file, send them the styles.css file
+    const cssPath = path.join(__dirname, 'public', 'styles.css'); //__dirname = the folder where the css file lives.
     fs.readFile(cssPath, (err, data) => {
       if (err) {
-        console.error('Error reading styles.css:', err);
+        console.error('Error reading styles.css:', err); // The same as above
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Error loading CSS');
         return;
       }
       res.writeHead(200, { 'Content-Type': 'text/css' });
-      res.end(data);
+      res.end(data); // Sends the contents of the css page to the browser if everything is ok
     });
   }
-  else if (req.url === '/favicon.ico') {
+  else if (req.url === '/favicon.ico') { // If the vlient is trying to access the little picture of the site send that it's ok
     res.writeHead(204);
     res.end();
   }
@@ -123,15 +123,13 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     */
 
     io.to(roomCode).emit("roomUpdate", { room: roomCode, players }); // Tell the user the update room state
+  });
 
-    socket.on("startGame", ({ room }) => {
-      const roomCode = room.toUpperCase();
-      console.log(`startGame received for room ${roomCode}`);
+  socket.on("startGame", ({ room }) => { // When the host presses start game -> send a messsage to the clients
+    const roomCode = room.toUpperCase();
+    console.log(`startGame received for room ${roomCode}`);
 
-      // TODO: broadcast to players, tell Unity to switch scene, etc.
-      io.to(roomCode).emit("gameStarted", { room: roomCode });
-    });
-
+    io.to(roomCode).emit("gameStarted", { room: roomCode });
   });
 
     socket.on("disconnect", () => { // Listens to clients disconnecting

@@ -121,14 +121,17 @@ public class LobbyManager : MonoBehaviour
         _codeMastersTeam.Clear();
 
         // Destroy the existing players so there won't be any duplicates
-        foreach (Transform child in _redTeam)
-        {
-            Destroy(child.gameObject);
-        }
-        foreach (Transform child in _blueTeam)
-        {
-            Destroy(child.gameObject);
-        }
+        if (_redTeam != null)
+            foreach (Transform child in _redTeam)
+            {
+                Destroy(child.gameObject);
+            }
+
+        if (_blueTeam != null)
+            foreach (Transform child in _blueTeam)
+            {
+                Destroy(child.gameObject);
+            }
 
         // Insert the new snapshot
         foreach (var player in players)
