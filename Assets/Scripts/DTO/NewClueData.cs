@@ -7,7 +7,7 @@ public class NewClueData
 {
     public string room;
     public string clueWord;
-    public string clueNumber; // string for "infinity"
+    public int clueNumber;
     public string team;
     public string from;
 }

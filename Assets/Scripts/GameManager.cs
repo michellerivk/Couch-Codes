@@ -8,6 +8,14 @@ public enum Language { English, Hebrew, Russian, Czech }
 public enum Team { red, blue }
 public enum Status { WaitingForClue, WaitingForGuesses, GameOver }
 
+public struct WinResult
+{
+    public bool hasWinner;
+    public string reason; // How the team won
+    public string winningTeam; // The team that won
+}
+
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -17,12 +25,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Language _boardLanguage = Language.English; // The language of the board
     [SerializeField] private TextMeshProUGUI _clueText; // The given clue
     [SerializeField] private TextMeshProUGUI _clueNumber; // The amount of words the clue refers to
+    private List<CardStateInfo> _boardLayoutForClients = new List<CardStateInfo>(); // Info for the HTML board
 
     private WordRecordCollection _wordData; // The data of the word on the card
 
     public Team _currentTeam { get; private set; } // The team that's currently playing
     public Status _currentStatus { get; private set; } // The status of the game
-    public int _guessesRemaining { get; private set; } // Amount of guesses left
+    public int _guessesRemaining { get; private set; } // Amount of guesses left out of the amount the clue master gave
+    public int _redTeamCards { get; private set; } // Amount of red team cards left to guess
+    public int _blueTeamCards { get; private set; }  // Amount of blue team cards left to guess
+    public bool _wasBombPressed { get; private set; } // Was the bomb pressed
 
     private void Awake()
     {
@@ -34,6 +46,11 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        _currentTeam = Team.red;                 // The red team starts
+        _currentStatus = Status.WaitingForClue;  // Waiting for first clue
+        _guessesRemaining = 0;
+        _wasBombPressed = false;
 
         LoadWords();
          
@@ -49,21 +66,6 @@ public class GameManager : MonoBehaviour
 
         _wordData = JsonUtility.FromJson<WordRecordCollection>(jsonString); // Get the words from the json, and insert into an array: _wordData.words
     }
-    
-    // Prints the words to the console - for debugging purposes
-    private void PrintWords()
-    {
-        if (_wordData == null || _wordData.words == null)
-        {
-            Debug.Log("No word data loaded.");
-            return;
-        }
-
-        foreach (var w in _wordData.words)
-        {
-            Debug.Log($"id={w.id}, en={w.en}, he={w.he}, ru={w.ru}, cs={w.cs}");
-        }
-    }
 
     // Creates the game board
     private void CreateBoard()
@@ -74,6 +76,8 @@ public class GameManager : MonoBehaviour
         List<string> redCards = new List<string>();
         List<string> bombCards = new List<string>();
         List<string> neutralCards = new List<string>();
+
+        _boardLayoutForClients.Clear();
 
         for (int i = 0; i < 25; i++)
         {
@@ -86,17 +90,22 @@ public class GameManager : MonoBehaviour
 
             usedWords.Add(_wordData.words[randomIndex].id);
 
-            bool addedCard = RandomizeOwner(newCard, randomIndex, blueCards, redCards, bombCards, neutralCards);
+            bool addedCard = RandomizeOwner(newCard, randomIndex, i, blueCards, redCards, bombCards, neutralCards);
 
             while (!addedCard)
             {
-                addedCard = RandomizeOwner(newCard, randomIndex, blueCards, redCards, bombCards, neutralCards);
-            }          
+                addedCard = RandomizeOwner(newCard, randomIndex, i, blueCards, redCards, bombCards, neutralCards);
+            }
         }
+
+        _redTeamCards = redCards.Count;
+        _blueTeamCards = blueCards.Count;
+
+        NetworkManager.Instance?.SendBoardState(_boardLayoutForClients);
     }
 
     // Randomizes the type of the card (blue, red, bomb, neutral)
-    private bool RandomizeOwner(Card newCard, int randomIndex, List<string> blueCards, List<string> redCards, List<string> bombCards, List<string> neutralCards)
+    private bool RandomizeOwner(Card newCard, int randomIndex, int boardIndex, List<string> blueCards, List<string> redCards, List<string> bombCards, List<string> neutralCards)
     {
         CardOwner owner = (CardOwner)UnityEngine.Random.Range(0, 4);
         WordRecord word = _wordData.words[randomIndex];
@@ -110,6 +119,14 @@ public class GameManager : MonoBehaviour
                 {
                     newCard.Init(word.id, owner, language);
                     redCards.Add(word.id);
+
+                    _boardLayoutForClients.Add(new CardStateInfo
+                    {
+                        id = word.id,
+                        word = language,
+                        index = boardIndex
+                    });
+
                     return true;
                 }
 
@@ -121,6 +138,14 @@ public class GameManager : MonoBehaviour
                 {
                     newCard.Init(word.id, owner, language);
                     blueCards.Add(word.id);
+
+                    _boardLayoutForClients.Add(new CardStateInfo
+                    {
+                        id = word.id,
+                        word = language,
+                        index = boardIndex
+                    });
+
                     return true;
                 }
 
@@ -132,6 +157,14 @@ public class GameManager : MonoBehaviour
                 {
                     newCard.Init(word.id, owner, language);
                     neutralCards.Add(word.id);
+
+                    _boardLayoutForClients.Add(new CardStateInfo
+                    {
+                        id = word.id,
+                        word = language,
+                        index = boardIndex
+                    });
+
                     return true;
                 }
 
@@ -143,6 +176,14 @@ public class GameManager : MonoBehaviour
                 {
                     newCard.Init(word.id, owner, language);
                     bombCards.Add(word.id);
+
+                    _boardLayoutForClients.Add(new CardStateInfo
+                    {
+                        id = word.id,
+                        word = language,
+                        index = boardIndex
+                    });
+
                     return true;
                 }
                 else
@@ -166,7 +207,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Setting a new clue after getting it from a Clue Master
-    public void SetClue(string clueWord, string clueNumber, string team)
+    public void SetClue(string clueWord, int clueNumber, string team)
     {
         if (_clueText == null || _clueNumber == null) // Make sure the clue texts are assigned
         {
@@ -174,7 +215,83 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // Set in the UI
         _clueText.text = clueWord;
-        _clueNumber.text = clueNumber;
+        _clueNumber.text = clueNumber.ToString();
+
+        // Set the rount initial stats
+        _currentTeam = team == "red" ? Team.red : Team.blue;
+
+        _guessesRemaining = clueNumber+1;
+
+        _currentStatus = Status.WaitingForGuesses;
+
+        NetworkManager.Instance?.AfterStatusChange();
+
+        //PlayRound(_guessesRemaining);
+    }
+
+
+    // Updates the current score, and checks if there's a winner
+    public WinResult UpdateScoreAndCheckWinner(string team)
+    {
+        var result = new WinResult { hasWinner = false, reason = "" };
+
+        if (_wasBombPressed)
+        {
+            result.hasWinner = true;
+            result.reason = "bomb";
+            result.winningTeam = team;
+            return result;
+        }
+
+        if (team == "red")
+        {
+            _redTeamCards--;
+            if (_redTeamCards <= 0)
+            {
+                result.hasWinner = true;
+                result.reason = "cards";
+                result.winningTeam = "red";
+            }
+        }
+        else
+        {
+            _blueTeamCards--;
+            if (_blueTeamCards <= 0)
+            {
+                result.hasWinner = true;
+                result.reason = "cards";
+                result.winningTeam = "blue";
+            }
+        }
+
+        return result;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    // Prints the words to the console - for debugging purposes
+    private void PrintWords()
+    {
+        if (_wordData == null || _wordData.words == null)
+        {
+            Debug.Log("No word data loaded.");
+            return;
+        }
+
+        foreach (var w in _wordData.words)
+        {
+            Debug.Log($"id={w.id}, en={w.en}, he={w.he}, ru={w.ru}, cs={w.cs}");
+        }
     }
 }

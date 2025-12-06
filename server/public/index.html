@@ -48,8 +48,10 @@
   </div>
 
   <div id="guesser-screen"> 
-    <!-- fill in later -->
-    Game Started: Guesser
+    <h2>Game Started: Guesser</h2>
+
+    <h3>Board</h3>
+    <div id="guesser-board" class="board-grid"></div>
   </div>
 
   <div id="clue-screen"> 
@@ -71,7 +73,7 @@
       <option value="7">7</option>
       <option value="8">8</option>
       <option value="9">9</option>
-      <option value="infinity">infinty</option>
+      <option value="10">infinity</option>
     </select>
 
     <button id="submitClue">Submit Clue</button>
@@ -90,13 +92,15 @@
 
     const joinScreen    = document.getElementById("join-screen");
     const lobbyScreen   = document.getElementById("lobby-screen");
-    const guesserScreen = document.getElementById("guesser-screen");
+    const guesserScreen = document.getElementById("guesser-screen"); // The screen of the guesser
+    const guesserBoard = document.getElementById("guesser-board"); // The board visual itself
     const clueScreen    = document.getElementById("clue-screen");
     const outputParagraph = document.getElementById("output");
     const lobbyInfo     = document.getElementById("lobby-info");
     const clueWordInput   = document.getElementById("clueWord");
     const clueNumberInput = document.getElementById("clueNumber");
     const submitClueBtn   = document.getElementById("submitClue");
+    
 
     socket.on("connect", () => {
       console.log("Connected to server with id:", socket.id);
@@ -154,7 +158,25 @@
         guesserScreen.style.display = "none";
         clueScreen.style.display = "none";
       }
-    }); //Was without ;?
+    });
+
+    socket.on("boardState", ({ room, cards }) => {
+      if (myRoom && room !== myRoom) return;
+
+      console.log("Received boardState:", room, cards);
+
+      guesserBoard.innerHTML = ""; // Clear the previous board
+
+      cards.sort((a, b) => a.index - b.index); // Sort the cards by index (in ascending order)
+
+      cards.forEach(card => {
+        const el = document.createElement("div");
+        el.className = "card";
+        el.dataset.cardId = card.id;
+        el.textContent = card.word;
+        guesserBoard.appendChild(el);
+      });
+    });
 
     socket.on("turnStateUpdate", ({ activeTeam, phase, guessesRemaining }) => {
       const isMyTeam = (myTeam === activeTeam);
@@ -192,7 +214,6 @@
       const name = document.getElementById("playerName").value;
       const room = document.getElementById("roomCode").value;
       const team = document.getElementById("team").value;
-      const outputParagraph = document.getElementById("output");
 
     if (!name || !room || !selectedRole || !team) {
         outputParagraph.textContent = "Please fill name, room, role and team.";

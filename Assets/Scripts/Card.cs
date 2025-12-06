@@ -11,6 +11,7 @@ public class Card : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _word;
     [SerializeField] private Image _spriteRenderer;
 
+
     public void Init(string id, CardOwner owner, string word) // Card.Init(id, owner, word) in Game Manager
     {
         _id = id;

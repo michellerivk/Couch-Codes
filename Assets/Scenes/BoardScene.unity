@@ -738,7 +738,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Waiting for clue....
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7f416d24d9a2d7348bb43c94e1d08e2c, type: 2}
   m_sharedMaterial: {fileID: -9031464489356249385, guid: 7f416d24d9a2d7348bb43c94e1d08e2c, type: 2}
@@ -871,7 +871,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_StartCorner: 3
+  m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 140, y: 80}
   m_Spacing: {x: 15, y: 15}
@@ -1013,7 +1013,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1
+  m_text: '?'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7f416d24d9a2d7348bb43c94e1d08e2c, type: 2}
   m_sharedMaterial: {fileID: -9031464489356249385, guid: 7f416d24d9a2d7348bb43c94e1d08e2c, type: 2}

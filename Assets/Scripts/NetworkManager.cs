@@ -5,6 +5,7 @@ using UnityEngine;
 using static SocketIOUnity;
 using static PlayerData;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private LobbyManager _lm;
 
     public SocketIOUnity socket { get; private set; }
+
+    private string _roomCode;
 
     private void Start() // I want to get the code from the LobbyManger.Awake() first
     {
@@ -30,6 +33,8 @@ public class NetworkManager : MonoBehaviour
             Debug.LogError("NetworkManager: '_lm' is not set in the Inspector");
             return;
         }
+
+        _roomCode = _lm.roomCode;
 
         HandleSocketConnection();
     }
@@ -55,7 +60,7 @@ public class NetworkManager : MonoBehaviour
             var joinData = new
             {
                 name = "Host",
-                room = _lm.roomCode,  // The room code
+                room = _roomCode,  // The room code
                 role = "host",
                 team = "host"
             };
@@ -133,20 +138,37 @@ public class NetworkManager : MonoBehaviour
 
         NetworkManager.Instance.socket.Emit("startGame", new
         {
-            room = _lm.roomCode
+            room = _roomCode
         });
 
-        Debug.Log($"Sent startGame for room {_lm.roomCode}");
+        Debug.Log($"Sent startGame for room {_roomCode}");
     }
 
     public void AfterStatusChange()
     {
         socket.Emit("turnStateUpdate", new
         {
-            room = _lm.roomCode,
+            room = _roomCode,
             activeTeam = GameManager.Instance._currentTeam.ToString().ToLower(), // The current team playing
             phase = GameManager.Instance._currentStatus.ToString(), // The status of the game
             guessesRemaining = GameManager.Instance._guessesRemaining // The amount of guesses left
         });
+    }
+    public void SendBoardState(List<CardStateInfo> cards) // Send the board to the HTML client
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendBoardState: socket is null");
+            return;
+        }
+
+        var data = new BoardStateData
+        {
+            room = _roomCode,
+            cards = cards
+        };
+
+        socket.Emit("boardState", data);
+        Debug.Log($"Sent boardState for room {_roomCode} with {cards.Count} cards");
     }
 }
