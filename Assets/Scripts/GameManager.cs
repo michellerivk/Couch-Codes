@@ -57,6 +57,10 @@ public class GameManager : MonoBehaviour
          
         CreateBoard();
     }
+    private void Start()
+    {
+        NetworkManager.Instance.AfterStatusChange();
+    }
 
     // Loads the words from the JSON file into an array of strings
     private void LoadWords()
@@ -233,6 +237,14 @@ public class GameManager : MonoBehaviour
     // Setting a new clue after getting it from a Clue Master
     public void SetClue(string clueWord, int clueNumber, string team)
     {
+        var clueTeam = team == "red" ? Team.red : Team.blue;
+
+        if (_currentStatus != Status.WaitingForClue || clueTeam != _currentTeam) // Making sure nothing buggy will send clues
+        {
+            Debug.LogWarning($"Ignoring clue from {team} while status={_currentStatus}, currentTeam={_currentTeam}");
+            return;
+        }
+
         if (_clueText == null || _clueNumber == null) // Make sure the clue texts are assigned
         {
             Debug.LogWarning("GameManager: clue text fields are missing.");
@@ -252,15 +264,24 @@ public class GameManager : MonoBehaviour
 
         NetworkManager.Instance.AfterStatusChange();
 
-        //PlayRound(_guessesRemaining);
+    }
+    public void OnCardHighlight(string cardId, string team, bool highlighted)
+    {
+        if (!_cardsById.TryGetValue(cardId, out var card))
+        {
+            Debug.LogWarning($"OnCardHighlight: no card with id {cardId}");
+            return;
+        }
+
+        card.ToggleHighlight(highlighted);
     }
 
     // Handling the guess
     public void HandleGuess(string cardId, string team)
     {
-        if (_guessesRemaining < 0)
+        if (_guessesRemaining <= 0) // Switch to the other team if there are no more guesses
         {
-            // TODO: switch to the other team
+            SwitchTurnToOtherTeam();
             return;
         }
 
@@ -268,9 +289,11 @@ public class GameManager : MonoBehaviour
 
         cardGuessed.RevealCard();
 
-        _wasBombPressed = cardGuessed.CheckIfBomb();
+        string cardOwner = cardGuessed.GetTeamAsString();
 
-        WinResult checkForWinner = UpdateScoreAndCheckWinner(team, cardGuessed.GetTeamAsString());
+        _wasBombPressed = (cardOwner == "bomb");
+
+        WinResult checkForWinner = UpdateScoreAndCheckWinner(team, cardOwner);
 
         if (checkForWinner.hasWinner)
         {
@@ -288,9 +311,8 @@ public class GameManager : MonoBehaviour
         _guessesRemaining--;
     }
 
-
     // Updates the current score, and checks if there's a winner
-    public WinResult UpdateScoreAndCheckWinner(string currentTeam, string cardTeam)
+    private WinResult UpdateScoreAndCheckWinner(string currentTeam, string cardOwner)
     {
         var result = new WinResult { hasWinner = false, reason = "" };
 
@@ -298,11 +320,16 @@ public class GameManager : MonoBehaviour
         {
             result.hasWinner = true;
             result.reason = "bomb";
-            result.winningTeam = currentTeam;
+            result.winningTeam = result.winningTeam = (currentTeam == "red") ? "blue" : "red";
             return result;
         }
 
-        if (cardTeam == "red")
+        if (cardOwner == "neutral")
+        {
+            SwitchTurnToOtherTeam(); // Switch to the other team if clicked a neutral card
+        }
+
+        if (cardOwner == "red")
         {
             _redTeamCards--;
             if (_redTeamCards <= 0)
@@ -311,8 +338,13 @@ public class GameManager : MonoBehaviour
                 result.reason = "cards";
                 result.winningTeam = "red";
             }
+
+            if(_currentTeam != Team.red)
+            {
+                SwitchTurnToOtherTeam(); // Switch to the other team if clicked the wrong team's card
+            }
         }
-        else
+        else if (cardOwner == "blue")
         {
             _blueTeamCards--;
             if (_blueTeamCards <= 0)
@@ -321,20 +353,33 @@ public class GameManager : MonoBehaviour
                 result.reason = "cards";
                 result.winningTeam = "blue";
             }
+
+            if (_currentTeam != Team.blue)
+            {
+                SwitchTurnToOtherTeam(); // Switch to the other team if clicked the wrong team's card
+            }
         }
 
         return result;
     }
 
-    public void OnCardHighlight(string cardId, string team, bool highlighted)
+    // Switch the turn to the other team
+    private void SwitchTurnToOtherTeam()
     {
-        if (!_cardsById.TryGetValue(cardId, out var card))
-        {
-            Debug.LogWarning($"OnCardHighlight: no card with id {cardId}");
+        if (_currentStatus == Status.GameOver)
             return;
-        }
-         
-        card.ToggleHighlight(highlighted);
+
+        // Switch team
+        _currentTeam = (_currentTeam == Team.red) ? Team.blue : Team.red;
+
+        // Waiting for the new clue
+        _currentStatus = Status.WaitingForClue;
+
+        // No guesses, until a new clue is given
+        _guessesRemaining = 0;
+
+        // Send the phones the new state
+        NetworkManager.Instance.AfterStatusChange();
     }
 
     private void StopGame(WinResult winner) 
@@ -356,7 +401,10 @@ public class GameManager : MonoBehaviour
         NetworkManager.Instance.SendGameOver(winner);
     }
 
-
+    public void EndRound()
+    {
+        SwitchTurnToOtherTeam();
+    }
 
 
 

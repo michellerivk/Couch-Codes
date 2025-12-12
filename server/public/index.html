@@ -91,13 +91,14 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <script> 
-    const socket = io(); // connect to the same server that served this page
+    const socket = io(); // Connect to the same server that served this page
 
     let myRoom = null;
     let myRole = null;
     let myTeam = null;
 
-    let canGuessNow = false; // Is it the user's turn to guess
+    let canGuessNow = false; // Can the guesser guess?
+    let canSubmitClueNow = false; // Can the clue master submit clue?
 
     const joinScreen    = document.getElementById("join-screen");
     const lobbyScreen   = document.getElementById("lobby-screen");
@@ -283,14 +284,14 @@
     socket.on("turnStateUpdate", ({ activeTeam, phase, guessesRemaining }) => {
       const isMyTeam = (myTeam === activeTeam);
 
-      const isMyTurnToGuess = isMyTeam && myRole === "guesser" && phase === "WaitingForGuesses";
+      const isMyTurnToGuess = isMyTeam && myRole === "guesser" && phase === "WaitingForGuesses"; // Guessers
+      const isMyTurnToClue = isMyTeam && myRole === "clue" && phase === "WaitingForClue"; // Clue - Masters
 
       canGuessNow = isMyTurnToGuess;
+      canSubmitClueNow = isMyTurnToClue;
 
-      const guessButtons = document.querySelectorAll(".card-guess-btn"); // If the user can't guess, disable the guess button
-      guessButtons.forEach(btn => {
-        btn.disabled = !canGuessNow;
-      })
+      const guessButtons = document.querySelectorAll(".card-guess-btn"); 
+      guessButtons.forEach(btn => { btn.disabled = !canGuessNow; }) // If the user can't guess, disable the guess button
 
       // Show board only when it's my turn to guess
       if (isMyTurnToGuess) {
@@ -299,6 +300,11 @@
       else {
         guesserBoard.classList.add("board-hidden");
       }
+
+      // Toggle clue input
+      if (submitClueBtn) submitClueBtn.disabled = !canSubmitClueNow;
+      if (clueWordInput) clueWordInput.disabled = !canSubmitClueNow;
+      if (clueNumberInput) clueNumberInput.disabled = !canSubmitClueNow;
 
       if (!turnStatusLabel) return;
 
@@ -323,7 +329,7 @@
           // Other team is guessing
           turnStatusLabel.textContent = `Waiting for the ${activeTeam.toUpperCase()} team to guess...`;
         } 
-        else {
+        else { 
           turnStatusLabel.textContent = "";
         }
       }
@@ -333,10 +339,13 @@
       if (myRoom && room !== myRoom) return;
 
       const cardEl = guesserBoard.querySelector(`[data-card-id="${cardId}"]`);
-      if (!cardEl) return;
+      const answerCardEl = clueAnswerBoard.querySelector(`[data-card-id="${cardId}"]`);
+      if (!cardEl || !answerCardEl) return;
 
-      cardEl.innerHTML = "";              // Remove the card
+      cardEl.innerHTML = ""; // Remove the card
+      answerCardEl.innerHTML = "";
       cardEl.classList.add("card-empty");
+      answerCardEl.classList.add("card-empty");
     });
 
     socket.on("gameOver", ({ room, winningTeam, reason }) => {
@@ -405,8 +414,13 @@
     });
 
     submitClueBtn.addEventListener("click", () => {
-      if (myRole !== "clue") { // If a non clue master ssends a clue -> return
+      if (myRole !== "clue") { // If a non clue master sends a clue -> return
         console.log("Only clue masters can submit a clue.");
+        return;
+      }
+
+      if (!canSubmitClueNow) { // If you send a clue on the wrong turn -> return
+        alert("It is not your team's turn to give a clue right now.\n" + "Wait until it is your team's turn!");
         return;
       }
 

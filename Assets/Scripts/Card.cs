@@ -48,14 +48,6 @@ public class Card : MonoBehaviour
             _highlightFrame.enabled = on;
     }
 
-    public bool CheckIfBomb()
-    {
-        if (_owner == CardOwner.Bomb)
-            return true;
-
-        return false;
-    }
-
     public string GetTeamAsString()
     {
         if (_owner == CardOwner.Bomb)
