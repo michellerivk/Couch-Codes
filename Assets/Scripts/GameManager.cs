@@ -106,12 +106,23 @@ public class GameManager : MonoBehaviour
     }
 
     // Randomizes the type of the card (blue, red, bomb, neutral)
-    private bool RandomizeOwner(Card newCard, int randomIndex, int boardIndex, List<string> blueCards, List<string> redCards, List<string> bombCards, List<string> neutralCards)
+    private bool RandomizeOwner(Card newCard, int randomIndex, int boardIndex,
+                                List<string> blueCards, List<string> redCards, 
+                                List<string> bombCards, List<string> neutralCards)
     {
         CardOwner owner = (CardOwner)UnityEngine.Random.Range(0, 4);
         WordRecord word = _wordData.words[randomIndex];
 
         string language = BuildLanguage(_boardLanguage, word);
+
+        string ownerString = owner switch
+        {
+            CardOwner.Red => "red",
+            CardOwner.Blue => "blue",
+            CardOwner.Neutral => "neutral",
+            CardOwner.Bomb => "bomb",
+            _ => "neutral"
+        };
 
         switch (owner)
         {
@@ -127,7 +138,8 @@ public class GameManager : MonoBehaviour
                     {
                         id = word.id,
                         word = language,
-                        index = boardIndex
+                        index = boardIndex,
+                        owner = ownerString
                     });
 
                     return true;
@@ -148,7 +160,8 @@ public class GameManager : MonoBehaviour
                     {
                         id = word.id,
                         word = language,
-                        index = boardIndex
+                        index = boardIndex,
+                        owner = ownerString
                     });
 
                     return true;
@@ -169,7 +182,8 @@ public class GameManager : MonoBehaviour
                     {
                         id = word.id,
                         word = language,
-                        index = boardIndex
+                        index = boardIndex,
+                        owner = ownerString
                     });
 
                     return true;
@@ -190,7 +204,8 @@ public class GameManager : MonoBehaviour
                     {
                         id = word.id,
                         word = language,
-                        index = boardIndex
+                        index = boardIndex,
+                        owner = ownerString
                     });
 
                     return true;
@@ -240,9 +255,42 @@ public class GameManager : MonoBehaviour
         //PlayRound(_guessesRemaining);
     }
 
+    // Handling the guess
+    public void HandleGuess(string cardId, string team)
+    {
+        if (_guessesRemaining < 0)
+        {
+            // TODO: switch to the other team
+            return;
+        }
+
+        Card cardGuessed = _cardsById[cardId];
+
+        cardGuessed.RevealCard();
+
+        _wasBombPressed = cardGuessed.CheckIfBomb();
+
+        WinResult checkForWinner = UpdateScoreAndCheckWinner(team, cardGuessed.GetTeamAsString());
+
+        if (checkForWinner.hasWinner)
+        {
+            StopGame(checkForWinner);
+        }
+        else
+        {
+            // Tell the phones this card is now gone
+            NetworkManager.Instance.SendCardRevealed(cardId);
+
+            // Send updated turn state
+            NetworkManager.Instance.AfterStatusChange();
+        }
+
+        _guessesRemaining--;
+    }
+
 
     // Updates the current score, and checks if there's a winner
-    public WinResult UpdateScoreAndCheckWinner(string team)
+    public WinResult UpdateScoreAndCheckWinner(string currentTeam, string cardTeam)
     {
         var result = new WinResult { hasWinner = false, reason = "" };
 
@@ -250,11 +298,11 @@ public class GameManager : MonoBehaviour
         {
             result.hasWinner = true;
             result.reason = "bomb";
-            result.winningTeam = team;
+            result.winningTeam = currentTeam;
             return result;
         }
 
-        if (team == "red")
+        if (cardTeam == "red")
         {
             _redTeamCards--;
             if (_redTeamCards <= 0)
@@ -285,18 +333,28 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning($"OnCardHighlight: no card with id {cardId}");
             return;
         }
-
-        // TODO: ignore if card is already revealed, etc.
-
+         
         card.ToggleHighlight(highlighted);
     }
 
+    private void StopGame(WinResult winner) 
+    {
+        Debug.Log($"Game Over! Winner: {winner.winningTeam}, reason: {winner.reason}");
 
+        _currentStatus = Status.GameOver;
+        _currentTeam = _currentTeam = winner.winningTeam == "Red" ? Team.red : Team.blue;
 
+        foreach ( var card in _cardsById)
+        {
+            card.Value.RevealCard();
+        }
 
+        // Send final turn state (phase = GameOver)
+        NetworkManager.Instance.AfterStatusChange();
 
-
-
+        // Tell phones who won and why
+        NetworkManager.Instance.SendGameOver(winner);
+    }
 
 
 

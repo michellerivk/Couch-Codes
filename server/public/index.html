@@ -50,6 +50,8 @@
   <div id="guesser-screen"> 
     <h2>Game Started: Guesser</h2>
 
+    <p id="turn-status" class="turn-status"></p> <!-- Show current status (Waiting for a guess for example) -->
+
     <h3>Board</h3>
     <div id="guesser-board" class="board-grid"></div>
   </div>
@@ -57,6 +59,11 @@
   <div id="clue-screen"> 
     <!-- fill in later -->
     <label>Game Started: Clue Master</label>
+
+    <div id="clue-answer-board-wrapper">
+      <h3>Answer Board</h3>
+      <div id="clue-answer-board" class="board-grid clue-board"></div>
+    </div>
 
     <label>Clue Word:</label>
     <input id="clueWord" type="text" placeholder="Your Clue" />
@@ -90,16 +97,20 @@
     let myRole = null;
     let myTeam = null;
 
+    let canGuessNow = false; // Is it the user's turn to guess
+
     const joinScreen    = document.getElementById("join-screen");
     const lobbyScreen   = document.getElementById("lobby-screen");
     const guesserScreen = document.getElementById("guesser-screen"); // The screen of the guesser
-    const guesserBoard = document.getElementById("guesser-board"); // The board visual itself
+    const guesserBoard = document.getElementById("guesser-board"); // The board of guesser itself
+    const clueAnswerBoard = document.getElementById("clue-answer-board"); // The board of the clue-master
     const clueScreen    = document.getElementById("clue-screen");
     const outputParagraph = document.getElementById("output");
     const lobbyInfo     = document.getElementById("lobby-info");
     const clueWordInput   = document.getElementById("clueWord");
     const clueNumberInput = document.getElementById("clueNumber");
     const submitClueBtn   = document.getElementById("submitClue");
+    const turnStatusLabel = document.getElementById("turn-status"); // Waiting for a guess for example
     
 
     socket.on("connect", () => {
@@ -165,19 +176,33 @@
 
       console.log("Received boardState:", room, cards);
 
+      //*** GUESSER BOARD ***// 
       guesserBoard.innerHTML = ""; // Clear the previous board
 
       cards.sort((a, b) => a.index - b.index); // Sort the cards by index (in ascending order)
 
       cards.forEach(card => {
+        // Outer card container
         const el = document.createElement("div");
         el.className = "card";
         el.dataset.cardId = card.id;
-        el.textContent = card.word;
+
+        // Guess button for each card
+        const guessBtn = document.createElement("button");
+        guessBtn.className = "card-guess-btn";
+        guessBtn.textContent = "Guess";
+        guessBtn.disabled = !canGuessNow; // Check current turn state
+
+        // Word area
+        const wordEl = document.createElement("div");
+        wordEl.className = "card-word";
+        wordEl.textContent = card.word;
         
-        // Single click
+        // Highlight 
         el.addEventListener("click", () => {
-          el.classList.toggle("highlighted"); // Un/Highlight locally
+          if (!canGuessNow) return; // If user can't guess, he can't highlight
+
+          el.classList.toggle("highlighted");          
 
           const nowHighlighted = el.classList.contains("highlighted"); // Check the state of the card (Highlighted or not)
 
@@ -189,17 +214,68 @@
           });
         });
 
-        el.addEventListener("dblclick", () => {
-          socket.emit("guessCard", { // Send guess to unity
+        // Click on guess button -> submit this card as a guess
+        guessBtn.addEventListener("click", (event) => {
+          event.stopPropagation(); // Stop the highlight if guessing
+
+          if (!canGuessNow) {
+            console.log("Cannot guess right now.");
+            return;
+          }
+
+          console.log("Emitting guessCard:", {
             room: myRoom,
             team: myTeam,
             cardId: card.id
           });
+
+          socket.emit("guessCard", {
+            room: myRoom,
+            team: myTeam,
+            cardId: card.id
+          });
+
+          // Optionally disable the button until the next turn update
+          //guessBtn.disabled = true;
         });
 
+        // Create the card
+        el.appendChild(wordEl);
+        el.appendChild(guessBtn);
 
+        // Add to board
         guesserBoard.appendChild(el);
       });
+
+      //*** CLUE MASTER BOARD ***//
+      if (myRole === "clue" && clueAnswerBoard) {
+      clueAnswerBoard.innerHTML = "";
+
+      cards.forEach(card => {
+        const el = document.createElement("div");
+        el.className = "card clue-card";
+        el.dataset.cardId = card.id;
+        el.textContent = card.word;
+
+        switch (card.owner) {
+          case "red":
+            el.classList.add("card-red");
+            break;
+          case "blue":
+            el.classList.add("card-blue");
+            break;
+          case "bomb":
+            el.classList.add("card-bomb");
+            break;
+          case "neutral":
+          default:
+            el.classList.add("card-neutral");
+            break;
+        }
+
+        clueAnswerBoard.appendChild(el);
+      });
+    }
 
 
     });
@@ -207,16 +283,91 @@
     socket.on("turnStateUpdate", ({ activeTeam, phase, guessesRemaining }) => {
       const isMyTeam = (myTeam === activeTeam);
 
-      const canSubmitClue = isMyTeam && myRole === "clue" && phase === "WaitingForClue";
+      const isMyTurnToGuess = isMyTeam && myRole === "guesser" && phase === "WaitingForGuesses";
 
-      const canGuess = isMyTeam && myRole === "guesser" && phase === "WaitingForGuesses";
+      canGuessNow = isMyTurnToGuess;
 
-      // - If canSubmitClue == false - disable clue inputs + button
-      // - If canGuess == false - disable guess UI
+      const guessButtons = document.querySelectorAll(".card-guess-btn"); // If the user can't guess, disable the guess button
+      guessButtons.forEach(btn => {
+        btn.disabled = !canGuessNow;
+      })
 
-      const waitingText = `Waiting for ${activeTeam.toUpperCase()} team...`;
-      if (!isMyTeam) {
-        // Show “Waiting for RED team to play”
+      // Show board only when it's my turn to guess
+      if (isMyTurnToGuess) {
+        guesserBoard.classList.remove("board-hidden");
+      } 
+      else {
+        guesserBoard.classList.add("board-hidden");
+      }
+
+      if (!turnStatusLabel) return;
+
+      if (phase === "GameOver") {
+        turnStatusLabel.textContent = "Game over.";
+        return;
+      }
+
+      if (myRole === "guesser") {
+        if (isMyTurnToGuess) {
+          turnStatusLabel.textContent = `Your team: time to guess! (${guessesRemaining} guess${guessesRemaining === 1 ? "" : "es"} left)`;
+        } 
+        else if (isMyTeam && phase === "WaitingForClue") {
+          // My team, but waiting for our clue master
+          turnStatusLabel.textContent = "Waiting for a clue from your clue master...";
+        } 
+        else if (!isMyTeam && phase === "WaitingForClue") {
+          // Other team, waiting for their clue
+          turnStatusLabel.textContent = `Waiting for the ${activeTeam.toUpperCase()} clue master to give a clue...`;
+        } 
+        else if (!isMyTeam && phase === "WaitingForGuesses") {
+          // Other team is guessing
+          turnStatusLabel.textContent = `Waiting for the ${activeTeam.toUpperCase()} team to guess...`;
+        } 
+        else {
+          turnStatusLabel.textContent = "";
+        }
+      }
+    });
+
+    socket.on("cardRevealed", ({ room, cardId }) => {
+      if (myRoom && room !== myRoom) return;
+
+      const cardEl = guesserBoard.querySelector(`[data-card-id="${cardId}"]`);
+      if (!cardEl) return;
+
+      cardEl.innerHTML = "";              // Remove the card
+      cardEl.classList.add("card-empty");
+    });
+
+    socket.on("gameOver", ({ room, winningTeam, reason }) => {
+      if (myRoom && room !== myRoom) return;
+
+      // Hide the board
+      guesserBoard.classList.add("board-hidden");
+
+      // Disable all guess buttons
+      const guessButtons = document.querySelectorAll(".card-guess-btn");
+      guessButtons.forEach(btn => btn.disabled = true);
+
+      // Create winner/loser message
+      const winnerUpper = winningTeam ? winningTeam.toUpperCase() : "";
+      const loserUpper = winningTeam === "red" ? "BLUE" : "RED";
+
+      let message = `The ${winnerUpper} team won.`;
+
+      if (reason === "bomb")
+      {
+        message = `The ${winnerUpper} team won because the ${loserUpper} team pressed the bomb.`;
+      }
+
+      else if (reason === "cards")
+      {
+        message = `The ${winnerUpper} team won by guessing all their words.`;
+      }
+
+      if (turnStatusLabel)
+      {
+        turnStatusLabel.textContent = message;
       }
     });
 

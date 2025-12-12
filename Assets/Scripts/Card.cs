@@ -47,4 +47,28 @@ public class Card : MonoBehaviour
         if (_highlightFrame != null)
             _highlightFrame.enabled = on;
     }
+
+    public bool CheckIfBomb()
+    {
+        if (_owner == CardOwner.Bomb)
+            return true;
+
+        return false;
+    }
+
+    public string GetTeamAsString()
+    {
+        if (_owner == CardOwner.Bomb)
+            return "bomb";
+
+        if (_owner == CardOwner.Red)
+            return "red";
+
+        if (_owner == CardOwner.Blue)
+            return "blue";
+
+        else
+            return "neutral";
+
+    }   
 }

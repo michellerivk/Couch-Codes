@@ -7,6 +7,7 @@ public class CardStateInfo
     public string id;    
     public string word;  
     public int index;    // board position (0-24)
+    public string owner; // "red", "blue", "neutral", "bomb"
 }
 
 [Serializable]

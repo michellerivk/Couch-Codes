@@ -137,9 +137,35 @@ public class NetworkManager : MonoBehaviour
                 return;
             }
 
-            Debug.Log($"Highlight card {data.cardId} = {data.highlighted} (team {data.team})");
+            Debug.Log($"Highlight card {data.cardId} = {data.highlighted} (team {data.team})"); 
 
             GameManager.Instance.OnCardHighlight(data.cardId, data.team, data.highlighted);
+        });
+
+        socket.OnUnityThread("guessCard", response =>
+        {
+            GuessCardData data = null;
+
+            try
+            {
+                data = response.GetValue<GuessCardData>();
+            }
+
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to parse guessCard: " + ex.Message);
+                return;
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("guessCard data was null");
+                return;
+            }
+
+            Debug.Log($"Guess from team {data.team} card {data.cardId} in room {data.room}");
+
+            GameManager.Instance.HandleGuess(data.cardId, data.team);
         });
 
         Debug.Log($"Connecting to Node server at {uri}");
@@ -178,6 +204,42 @@ public class NetworkManager : MonoBehaviour
             guessesRemaining = GameManager.Instance._guessesRemaining // The amount of guesses left
         });
     }
+
+    public void SendGameOver(WinResult winner)
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendGameOver: socket is null");
+            return;
+        }
+
+        socket.Emit("gameOver", new
+        {
+            room = _roomCode,
+            winningTeam = winner.winningTeam,
+            reason = winner.reason
+        });
+
+        Debug.Log($"Sent gameOver for room {_roomCode}: winner={winner.winningTeam}, reason={winner.reason}");
+    }
+
+    public void SendCardRevealed(string cardId)
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendCardRevealed: socket is null");
+            return;
+        }
+
+        socket.Emit("cardRevealed", new
+        {
+            room = _roomCode,
+            cardId = cardId
+        });
+
+        Debug.Log($"Sent cardRevealed for room {_roomCode}, card {cardId}");
+    }
+
     public void SendBoardState(List<CardStateInfo> cards) // Send the board to the HTML client
     {
         if (socket == null)

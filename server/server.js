@@ -208,7 +208,25 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     });
   });
 
-    socket.on("disconnect", () => { // Listens to clients disconnecting
+  socket.on("cardRevealed", ({ room, cardId }) => { // Listen to the event cardRevealed
+    const roomCode = room.toUpperCase();
+    console.log(`cardRevealed in room ${roomCode}: ${cardId}`);
+    io.to(roomCode).emit("cardRevealed", { room: roomCode, cardId }); // Send the clients that a card was revealed
+  });
+
+  socket.on("gameOver", ({ room, winningTeam, reason }) => {
+    const roomCode = room.toUpperCase();
+    console.log(`gameOver for room ${roomCode}: winner=${winningTeam}, reason=${reason}`);
+
+    io.to(roomCode).emit("gameOver", {
+      room: roomCode,
+      winningTeam,
+      reason
+    });
+  });
+
+
+  socket.on("disconnect", () => { // Listens to clients disconnecting
     console.log("Client disconnected:", socket.id); // Logs the disconnect
 
     for (const [roomCode, roomData] of Object.entries(rooms)) {
