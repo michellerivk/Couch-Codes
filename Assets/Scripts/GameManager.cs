@@ -19,11 +19,19 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    [Header("Board Objects")]
     [SerializeField] private Card _cardPrefab; // A card on the board
     [SerializeField] private Transform _boardParent; // The board
     [SerializeField] private Language _boardLanguage = Language.English; // The language of the board
+
+    [Header("CM's Clues")]
+    [SerializeField] GameObject _clueObject;
     [SerializeField] private TextMeshProUGUI _clueText; // The given clue
     [SerializeField] private TextMeshProUGUI _clueNumber; // The amount of words the clue refers to
+
+    [Header("End Game")]
+    [SerializeField] GameObject _gameOverObject;
+
     private List<CardStateInfo> _boardLayoutForClients = new List<CardStateInfo>(); // Info for the HTML board
 
     private Dictionary<string, Card> _cardsById = new Dictionary<string, Card>(); // A dictionary of cards by their ID
@@ -52,6 +60,9 @@ public class GameManager : MonoBehaviour
         _currentStatus = Status.WaitingForClue;  // Waiting for first clue
         _guessesRemaining = 0;
         _wasBombPressed = false;
+
+        _clueObject.SetActive(true);
+        _gameOverObject.SetActive(false);
 
         LoadWords();
          
@@ -394,6 +405,9 @@ public class GameManager : MonoBehaviour
             card.Value.RevealCard();
         }
 
+        _clueObject.SetActive(false);
+        _gameOverObject.SetActive(true);
+
         // Send final turn state (phase = GameOver)
         NetworkManager.Instance.AfterStatusChange();
 
@@ -401,11 +415,57 @@ public class GameManager : MonoBehaviour
         NetworkManager.Instance.SendGameOver(winner);
     }
 
+    // A fucntion for ending a round - incase I'd like to add anything else
     public void EndRound()
     {
         SwitchTurnToOtherTeam();
     }
+    
+    // Start the game over
+    public void PlayAgain()
+    {
+        // Clear the board
+        if (_boardParent != null)
+        {
+            foreach (Transform child in _boardParent)
+            {
+                Destroy(child.gameObject);
+            }
+        }
 
+        // Reset all the parameters
+        _cardsById.Clear();
+        _boardLayoutForClients.Clear();
+
+        _currentTeam = Team.red;
+        _currentStatus = Status.WaitingForClue;
+        _guessesRemaining = 0;
+        _wasBombPressed = false;
+
+        _redTeamCards = 0;
+        _blueTeamCards = 0;
+
+        _clueObject.SetActive(true);
+        _gameOverObject.SetActive(false);
+
+        // Reset UI
+        if (_clueText != null)
+            _clueText.text = "Waiting for a clue....";
+
+        if (_clueNumber != null)
+            _clueNumber.text = "?";
+
+        // Create the board
+        CreateBoard();
+
+        // Inform the server we started again
+        NetworkManager.Instance.AfterStatusChange();
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 
 
     // Prints the words to the console - for debugging purposes
