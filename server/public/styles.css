@@ -92,3 +92,9 @@ body {
   background-color: #222;
   color: #fff;
 }
+
+.end-guess-btn {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}

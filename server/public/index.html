@@ -52,8 +52,8 @@
 
     <p id="turn-status" class="turn-status"></p> <!-- Show current status (Waiting for a guess for example) -->
 
-    <h3>Board</h3>
     <div id="guesser-board" class="board-grid"></div>
+    <button id="endGuessBtn" class="end-guess-btn"> End guessing </button>
   </div>
 
   <div id="clue-screen"> 
@@ -112,6 +112,7 @@
     const clueNumberInput = document.getElementById("clueNumber");
     const submitClueBtn   = document.getElementById("submitClue");
     const turnStatusLabel = document.getElementById("turn-status"); // Waiting for a guess for example
+    const endGuessBtn = document.getElementById("endGuessBtn");
     
 
     socket.on("connect", () => {
@@ -224,6 +225,9 @@
             return;
           }
 
+          const confirmed = confirm(`Are you sure you want to guess?`);
+          if (!confirmed) return;
+
           console.log("Emitting guessCard:", {
             room: myRoom,
             team: myTeam,
@@ -301,6 +305,11 @@
         guesserBoard.classList.add("board-hidden");
       }
 
+      if (endGuessBtn) {
+        endGuessBtn.disabled = !isMyTurnToGuess;
+        endGuessBtn.style.display = isMyTurnToGuess ? "inline-block" : "none";
+      }
+
       // Toggle clue input
       if (submitClueBtn) submitClueBtn.disabled = !canSubmitClueNow;
       if (clueWordInput) clueWordInput.disabled = !canSubmitClueNow;
@@ -338,14 +347,30 @@
     socket.on("cardRevealed", ({ room, cardId }) => {
       if (myRoom && room !== myRoom) return;
 
+      // Clear guesser board
       const cardEl = guesserBoard.querySelector(`[data-card-id="${cardId}"]`);
-      const answerCardEl = clueAnswerBoard.querySelector(`[data-card-id="${cardId}"]`);
-      if (!cardEl || !answerCardEl) return;
+      if (cardEl) {
+        cardEl.innerHTML = "";
+        cardEl.classList.add("card-empty");
+      }
 
-      cardEl.innerHTML = ""; // Remove the card
-      answerCardEl.innerHTML = "";
-      cardEl.classList.add("card-empty");
-      answerCardEl.classList.add("card-empty");
+      // Clear C.M. board
+      if (clueAnswerBoard) {
+        const answerCardEl = clueAnswerBoard.querySelector(`[data-card-id="${cardId}"]`);
+        if (answerCardEl) {
+          answerCardEl.innerHTML = "";
+          answerCardEl.classList.add("card-empty");
+        }
+      }
+    });
+
+    socket.on("clearHighlights", ({ room }) => {
+      if (myRoom && room !== myRoom) return;
+
+      const highlightedCards = document.querySelectorAll(".card.highlighted");
+      highlightedCards.forEach(el => {
+        el.classList.remove("highlighted");
+      });
     });
 
     socket.on("gameOver", ({ room, winningTeam, reason }) => {
@@ -440,6 +465,25 @@
       const payload = { room: myRoom, clueWord, clueNumber };
       console.log("Emitting submitClue:", payload);
       socket.emit("submitClue", payload);
+    });
+
+    endGuessBtn.addEventListener("click", () => {
+      if (!canGuessNow) {
+        // Optional: small popup so the player understands
+        alert("It is not your team's turn to guess.");
+        return;
+      }
+
+      if (!myRoom) {
+        console.warn("No room stored yet, can't end guessing.");
+        return;
+      }
+
+      const confirmed = confirm("End your team's guessing turn?");
+      if (!confirmed) return;
+
+      console.log("Emitting endGuessing:", { room: myRoom, team: myTeam });
+      socket.emit("endGuessing", { room: myRoom, team: myTeam });
     });
   </script>
 </body>

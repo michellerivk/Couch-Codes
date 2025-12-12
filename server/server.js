@@ -208,6 +208,25 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     });
   });
 
+  socket.on("endGuessing", ({ room, team }) => {
+    if (!room || !team) return;
+
+    const roomCode = room.toUpperCase();
+    console.log(`endGuessing from ${team} in room ${roomCode}`);
+
+    // Forward to Unity + everyone in that room
+    io.to(roomCode).emit("endGuessing", { room: roomCode, team });
+  });
+
+  socket.on("clearHighlights", ({ room }) => {
+    if (!room) return;
+
+    const roomCode = room.toUpperCase();
+    console.log(`clearHighlights for room ${roomCode}`);
+
+    io.to(roomCode).emit("clearHighlights", { room: roomCode });
+  });
+
   socket.on("cardRevealed", ({ room, cardId }) => { // Listen to the event cardRevealed
     const roomCode = room.toUpperCase();
     console.log(`cardRevealed in room ${roomCode}: ${cardId}`);

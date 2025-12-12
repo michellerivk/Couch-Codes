@@ -29,6 +29,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _clueText; // The given clue
     [SerializeField] private TextMeshProUGUI _clueNumber; // The amount of words the clue refers to
 
+    [Header("Cards Counter")]
+    [SerializeField] private TextMeshProUGUI _redCards;
+    [SerializeField] private TextMeshProUGUI _blueCards;
+
     [Header("End Game")]
     [SerializeField] GameObject _gameOverObject;
 
@@ -61,8 +65,13 @@ public class GameManager : MonoBehaviour
         _guessesRemaining = 0;
         _wasBombPressed = false;
 
+        // Some starting settings 
         _clueObject.SetActive(true);
         _gameOverObject.SetActive(false);
+        _redCards.text = 9.ToString();
+        _blueCards.text = 8.ToString();
+        _clueText.text = $"Waiting for a {_currentTeam} clue....";
+        _clueNumber.text = "?";
 
         LoadWords();
          
@@ -117,7 +126,7 @@ public class GameManager : MonoBehaviour
         _redTeamCards = redCards.Count;
         _blueTeamCards = blueCards.Count;
 
-        NetworkManager.Instance?.SendBoardState(_boardLayoutForClients);
+        NetworkManager.Instance.SendBoardState(_boardLayoutForClients);
     }
 
     // Randomizes the type of the card (blue, red, bomb, neutral)
@@ -264,7 +273,10 @@ public class GameManager : MonoBehaviour
 
         // Set in the UI
         _clueText.text = clueWord;
-        _clueNumber.text = clueNumber.ToString();
+        if (clueNumber < 10)
+            _clueNumber.text = clueNumber.ToString();
+        else
+            _clueNumber.text = "inf";
 
         // Set the rount initial stats
         _currentTeam = team == "red" ? Team.red : Team.blue;
@@ -290,13 +302,30 @@ public class GameManager : MonoBehaviour
     // Handling the guess
     public void HandleGuess(string cardId, string team)
     {
-        if (_guessesRemaining <= 0) // Switch to the other team if there are no more guesses
+        if (_currentStatus != Status.WaitingForGuesses) // Making sure we're at the right phase
         {
-            SwitchTurnToOtherTeam();
+            Debug.LogWarning($"HandleGuess ignored: status={_currentStatus}");
             return;
         }
 
-        Card cardGuessed = _cardsById[cardId];
+        if ((_currentTeam == Team.red && team != "red") || // Making sure the correct team is guessing
+        (_currentTeam == Team.blue && team != "blue"))
+        {
+            Debug.LogWarning($"HandleGuess ignored: team {team} tried to guess on {_currentTeam}'s turn");
+            return;
+        }
+
+        if (_guessesRemaining <= 0)
+        {
+            Debug.LogWarning("HandleGuess ignored: no guesses remaining.");
+            return;
+        }
+
+        if (!_cardsById.TryGetValue(cardId, out var cardGuessed))
+        {
+            Debug.LogWarning($"HandleGuess: unknown cardId {cardId}");
+            return;
+        }
 
         cardGuessed.RevealCard();
 
@@ -304,22 +333,33 @@ public class GameManager : MonoBehaviour
 
         _wasBombPressed = (cardOwner == "bomb");
 
-        WinResult checkForWinner = UpdateScoreAndCheckWinner(team, cardOwner);
+        _guessesRemaining = Mathf.Max(0, _guessesRemaining - 1); 
 
-        if (checkForWinner.hasWinner)
+        WinResult result = UpdateScoreAndCheckWinner(team, cardOwner);
+
+        // Tell the phones this card is now gone
+        NetworkManager.Instance.SendCardRevealed(cardId);
+
+        if (result.hasWinner)
         {
-            StopGame(checkForWinner);
+            StopGame(result);
+            return;
+        }
+
+        if (_currentStatus == Status.WaitingForClue)
+        {
+            NetworkManager.Instance.AfterStatusChange();
+            return;
+        }
+
+        if (_guessesRemaining <= 0)
+        {
+            EndRound();
         }
         else
         {
-            // Tell the phones this card is now gone
-            NetworkManager.Instance.SendCardRevealed(cardId);
-
-            // Send updated turn state
             NetworkManager.Instance.AfterStatusChange();
         }
-
-        _guessesRemaining--;
     }
 
     // Updates the current score, and checks if there's a winner
@@ -371,6 +411,9 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        _redCards.text = _redTeamCards.ToString();
+        _blueCards.text = _blueTeamCards.ToString();
+
         return result;
     }
 
@@ -379,6 +422,8 @@ public class GameManager : MonoBehaviour
     {
         if (_currentStatus == Status.GameOver)
             return;
+
+        ClearAllHighlights(); // Clear the highlights from the Unity board
 
         // Switch team
         _currentTeam = (_currentTeam == Team.red) ? Team.blue : Team.red;
@@ -389,8 +434,17 @@ public class GameManager : MonoBehaviour
         // No guesses, until a new clue is given
         _guessesRemaining = 0;
 
+        if (_clueText != null)
+            _clueText.text = $"Waiting for a {_currentTeam} clue....";
+
+        if (_clueNumber != null)
+            _clueNumber.text = "?";
+
         // Send the phones the new state
         NetworkManager.Instance.AfterStatusChange();
+
+        // Make the phones clear their highlights too
+        NetworkManager.Instance.SendClearHighlights();
     }
 
     private void StopGame(WinResult winner) 
@@ -398,7 +452,8 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Game Over! Winner: {winner.winningTeam}, reason: {winner.reason}");
 
         _currentStatus = Status.GameOver;
-        _currentTeam = _currentTeam = winner.winningTeam == "Red" ? Team.red : Team.blue;
+        _currentTeam = winner.winningTeam == "red" ? Team.red : Team.blue;
+
 
         foreach ( var card in _cardsById)
         {
@@ -416,11 +471,41 @@ public class GameManager : MonoBehaviour
     }
 
     // A fucntion for ending a round - incase I'd like to add anything else
-    public void EndRound()
+    private void EndRound()
     {
         SwitchTurnToOtherTeam();
     }
-    
+
+    public void OnEndGuessing(string team)
+    {
+        // Only on status WaitingForGuess, a guess can be submited
+        if (_currentStatus != Status.WaitingForGuesses)
+        {
+            Debug.LogWarning($"OnEndGuessing ignored: status={_currentStatus}");
+            return;
+        }
+
+        // Only the active team can end their guessing
+        if ((_currentTeam == Team.red && team != "red") ||
+            (_currentTeam == Team.blue && team != "blue"))
+        {
+            Debug.LogWarning($"OnEndGuessing ignored: team {team} tried to end {_currentTeam}'s turn");
+            return;
+        }
+
+        Debug.Log("OnEndGuessing: ending round early by player request.");
+        EndRound();
+    }
+
+    // Clear all the remaining highlights from the words
+    private void ClearAllHighlights()
+    {
+        foreach (var kvp in _cardsById)
+        {
+            kvp.Value.ToggleHighlight(false);
+        }
+    }
+
     // Start the game over
     public void PlayAgain()
     {
@@ -447,6 +532,8 @@ public class GameManager : MonoBehaviour
 
         _clueObject.SetActive(true);
         _gameOverObject.SetActive(false);
+        _redCards.text = 9.ToString();
+        _blueCards.text = 8.ToString();
 
         // Reset UI
         if (_clueText != null)

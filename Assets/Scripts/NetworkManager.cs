@@ -168,6 +168,29 @@ public class NetworkManager : MonoBehaviour
             GameManager.Instance.HandleGuess(data.cardId, data.team);
         });
 
+        socket.OnUnityThread("endGuessing", response =>
+        {
+            EndGuessingData data = null;
+            try
+            {
+                data = response.GetValue<EndGuessingData>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to parse endGuessing: " + ex.Message);
+                return;
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("endGuessing data was null");
+                return;
+            }
+
+            Debug.Log($"endGuessing from team {data.team} in room {data.room}");
+            GameManager.Instance.OnEndGuessing(data.team);
+        });
+
         Debug.Log($"Connecting to Node server at {uri}");
         socket.Connect();
     }
@@ -256,5 +279,21 @@ public class NetworkManager : MonoBehaviour
 
         socket.Emit("boardState", data);
         Debug.Log($"Sent boardState for room {_roomCode} with {cards.Count} cards");
+    }
+
+    public void SendClearHighlights()
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendClearHighlights: socket is null");
+            return;
+        }
+
+        socket.Emit("clearHighlights", new
+        {
+            room = _roomCode
+        });
+
+        Debug.Log($"Sent clearHighlights for room {_roomCode}");
     }
 }

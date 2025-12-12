@@ -154,6 +154,8 @@ MonoBehaviour:
   _clueObject: {fileID: 577630344}
   _clueText: {fileID: 1014115262}
   _clueNumber: {fileID: 2030873655}
+  _redCards: {fileID: 994564075}
+  _blueCards: {fileID: 773100043}
   _gameOverObject: {fileID: 1283900089}
 --- !u!4 &5410694
 Transform:
