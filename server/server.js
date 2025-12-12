@@ -192,10 +192,20 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     io.to(roomCode).emit("guessCard", { room: roomCode, team, cardId });
   });
 
-  // highlight is optional / UI only
-  socket.on("highlightCard", ({ room, team, cardId }) => {
+  socket.on("highlightCard", ({ room, team, cardId, highlighted }) => { // Highlight cards
     const roomCode = room.toUpperCase();
-    io.to(roomCode).emit("highlightCard", { room: roomCode, team, cardId });
+
+    console.log(
+      `highlightCard in room ${roomCode}: team=${team}, cardId=${cardId}, highlighted=${highlighted}`
+    );
+
+    // Send unity the card that has been highlighted
+    io.to(roomCode).emit("highlightCard", {
+      room: roomCode,
+      team,
+      cardId,
+      highlighted
+    });
   });
 
     socket.on("disconnect", () => { // Listens to clients disconnecting

@@ -118,6 +118,30 @@ public class NetworkManager : MonoBehaviour
             GameManager.Instance.SetClue(data.clueWord, data.clueNumber, data.team);
         });
 
+        socket.OnUnityThread("highlightCard", response =>
+        {
+            HighlightCardData data = null;
+            try
+            {
+                data = response.GetValue<HighlightCardData>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to parse highlightCard: " + ex.Message);
+                return;
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("highlightCard data was null");
+                return;
+            }
+
+            Debug.Log($"Highlight card {data.cardId} = {data.highlighted} (team {data.team})");
+
+            GameManager.Instance.OnCardHighlight(data.cardId, data.team, data.highlighted);
+        });
+
         Debug.Log($"Connecting to Node server at {uri}");
         socket.Connect();
     }

@@ -174,8 +174,34 @@
         el.className = "card";
         el.dataset.cardId = card.id;
         el.textContent = card.word;
+        
+        // Single click
+        el.addEventListener("click", () => {
+          el.classList.toggle("highlighted"); // Un/Highlight locally
+
+          const nowHighlighted = el.classList.contains("highlighted"); // Check the state of the card (Highlighted or not)
+
+          socket.emit("highlightCard", { // Send highlighting to Unity
+            room: myRoom,
+            team: myTeam,
+            cardId: card.id,
+            highlighted: nowHighlighted
+          });
+        });
+
+        el.addEventListener("dblclick", () => {
+          socket.emit("guessCard", { // Send guess to unity
+            room: myRoom,
+            team: myTeam,
+            cardId: card.id
+          });
+        });
+
+
         guesserBoard.appendChild(el);
       });
+
+
     });
 
     socket.on("turnStateUpdate", ({ activeTeam, phase, guessesRemaining }) => {

@@ -15,7 +15,6 @@ public struct WinResult
     public string winningTeam; // The team that won
 }
 
-
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -26,6 +25,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _clueText; // The given clue
     [SerializeField] private TextMeshProUGUI _clueNumber; // The amount of words the clue refers to
     private List<CardStateInfo> _boardLayoutForClients = new List<CardStateInfo>(); // Info for the HTML board
+
+    private Dictionary<string, Card> _cardsById = new Dictionary<string, Card>(); // A dictionary of cards by their ID
 
     private WordRecordCollection _wordData; // The data of the word on the card
 
@@ -120,6 +121,8 @@ public class GameManager : MonoBehaviour
                     newCard.Init(word.id, owner, language);
                     redCards.Add(word.id);
 
+                    _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID
+
                     _boardLayoutForClients.Add(new CardStateInfo
                     {
                         id = word.id,
@@ -138,6 +141,8 @@ public class GameManager : MonoBehaviour
                 {
                     newCard.Init(word.id, owner, language);
                     blueCards.Add(word.id);
+
+                    _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID
 
                     _boardLayoutForClients.Add(new CardStateInfo
                     {
@@ -158,6 +163,8 @@ public class GameManager : MonoBehaviour
                     newCard.Init(word.id, owner, language);
                     neutralCards.Add(word.id);
 
+                    _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID
+
                     _boardLayoutForClients.Add(new CardStateInfo
                     {
                         id = word.id,
@@ -176,6 +183,8 @@ public class GameManager : MonoBehaviour
                 {
                     newCard.Init(word.id, owner, language);
                     bombCards.Add(word.id);
+
+                    _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID
 
                     _boardLayoutForClients.Add(new CardStateInfo
                     {
@@ -222,11 +231,11 @@ public class GameManager : MonoBehaviour
         // Set the rount initial stats
         _currentTeam = team == "red" ? Team.red : Team.blue;
 
-        _guessesRemaining = clueNumber+1;
+        _guessesRemaining = clueNumber + 1;
 
         _currentStatus = Status.WaitingForGuesses;
 
-        NetworkManager.Instance?.AfterStatusChange();
+        NetworkManager.Instance.AfterStatusChange();
 
         //PlayRound(_guessesRemaining);
     }
@@ -267,6 +276,19 @@ public class GameManager : MonoBehaviour
         }
 
         return result;
+    }
+
+    public void OnCardHighlight(string cardId, string team, bool highlighted)
+    {
+        if (!_cardsById.TryGetValue(cardId, out var card))
+        {
+            Debug.LogWarning($"OnCardHighlight: no card with id {cardId}");
+            return;
+        }
+
+        // TODO: ignore if card is already revealed, etc.
+
+        card.ToggleHighlight(highlighted);
     }
 
 

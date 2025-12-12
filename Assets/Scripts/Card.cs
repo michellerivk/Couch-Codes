@@ -10,7 +10,7 @@ public class Card : MonoBehaviour
     private CardOwner _owner;
     [SerializeField] private TextMeshProUGUI _word;
     [SerializeField] private Image _spriteRenderer;
-
+    [SerializeField] private Image _highlightFrame;
 
     public void Init(string id, CardOwner owner, string word) // Card.Init(id, owner, word) in Game Manager
     {
@@ -40,5 +40,11 @@ public class Card : MonoBehaviour
                 _word.color = Color.white;
                 break;
         }
+    }
+
+    public void ToggleHighlight(bool on)
+    {
+        if (_highlightFrame != null)
+            _highlightFrame.enabled = on;
     }
 }

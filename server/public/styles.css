@@ -36,3 +36,8 @@ body {
   font-size: 14px;
   box-sizing: border-box;
 }
+
+.card.highlighted {
+  outline: 2px solid #000;
+  background: #e0e0ff;
+}
