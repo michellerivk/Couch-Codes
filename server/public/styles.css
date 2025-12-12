@@ -3,3 +3,98 @@
 #clue-screen {
   display: none;
 }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Optional but nice */
+body {
+  font-family: system-ui, sans-serif;
+}
+
+/* Guesser screen padding, but keep it inside the viewport */
+#guesser-screen {
+  padding: 12px;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columns */
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.board-grid .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 4px;
+  background: #f5f5f5;
+  box-sizing: border-box;
+}
+
+.card-word {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.card-guess-btn {
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.card.highlighted {
+  outline: 2px solid #000;
+  background: #e0e0ff;
+}
+
+.turn-status {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 10px 0 16px;
+}
+
+.board-hidden {
+  display: none;
+}
+
+.card-empty {
+  background-color: #f0f0f0;
+  border-style: dashed;
+}
+
+.clue-board .card {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px;
+}
+
+.board-grid .card.card-red {
+  background-color: #f57272;
+}
+
+.board-grid .card.card-blue {
+  background-color: #6a8ee8;
+}
+
+.board-grid .card.card-neutral {
+  background-color: #f5f1dc;
+}
+
+.board-grid .card.card-bomb {
+  background-color: #222;
+  color: #fff;
+}
+
+.end-guess-btn {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}

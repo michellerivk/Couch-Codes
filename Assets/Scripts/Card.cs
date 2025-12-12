@@ -10,6 +10,7 @@ public class Card : MonoBehaviour
     private CardOwner _owner;
     [SerializeField] private TextMeshProUGUI _word;
     [SerializeField] private Image _spriteRenderer;
+    [SerializeField] private Image _highlightFrame;
 
     public void Init(string id, CardOwner owner, string word) // Card.Init(id, owner, word) in Game Manager
     {
@@ -40,4 +41,26 @@ public class Card : MonoBehaviour
                 break;
         }
     }
+
+    public void ToggleHighlight(bool on)
+    {
+        if (_highlightFrame != null)
+            _highlightFrame.enabled = on;
+    }
+
+    public string GetTeamAsString()
+    {
+        if (_owner == CardOwner.Bomb)
+            return "bomb";
+
+        if (_owner == CardOwner.Red)
+            return "red";
+
+        if (_owner == CardOwner.Blue)
+            return "blue";
+
+        else
+            return "neutral";
+
+    }   
 }

@@ -132,6 +132,12 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     io.to(roomCode).emit("gameStarted", { room: roomCode });
   });
 
+  socket.on("boardState", ({ room, cards }) => {
+    const roomCode = room.toUpperCase();
+    console.log(`Received boardState for room ${roomCode} with ${cards.length} cards`);
+    io.to(roomCode).emit("boardState", { room: roomCode, cards });
+  });
+
   socket.on("submitClue", ({ room, clueWord, clueNumber }) => { // A listener for submiting a clue
     if (!room || !clueWord || !clueNumber) { // If the room , the clue, or the number dont exist -> return
       socket.emit("joinError", "Missing clue data.");
@@ -169,11 +175,77 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
       clueWord,
       clueNumber,
       team: player.team,
-      from: player.name    // optional: who sent it
+      from: player.name    // Who sent it - maybe will remove
     });
   });
 
-    socket.on("disconnect", () => { // Listens to clients disconnecting
+  socket.on("turnStateUpdate", data => {
+    const roomCode = data.room.toUpperCase();
+    io.to(roomCode).emit("turnStateUpdate", data);
+  });
+
+  socket.on("guessCard", ({ room, team, cardId }) => { // Player double tapped to guess
+    const roomCode = room.toUpperCase();
+
+    console.log(`guessCard from ${team} in room ${roomCode}: card ${cardId}`);
+
+    io.to(roomCode).emit("guessCard", { room: roomCode, team, cardId });
+  });
+
+  socket.on("highlightCard", ({ room, team, cardId, highlighted }) => { // Highlight cards
+    const roomCode = room.toUpperCase();
+
+    console.log(
+      `highlightCard in room ${roomCode}: team=${team}, cardId=${cardId}, highlighted=${highlighted}`
+    );
+
+    // Send unity the card that has been highlighted
+    io.to(roomCode).emit("highlightCard", {
+      room: roomCode,
+      team,
+      cardId,
+      highlighted
+    });
+  });
+
+  socket.on("endGuessing", ({ room, team }) => {
+    if (!room || !team) return;
+
+    const roomCode = room.toUpperCase();
+    console.log(`endGuessing from ${team} in room ${roomCode}`);
+
+    // Forward to Unity + everyone in that room
+    io.to(roomCode).emit("endGuessing", { room: roomCode, team });
+  });
+
+  socket.on("clearHighlights", ({ room }) => {
+    if (!room) return;
+
+    const roomCode = room.toUpperCase();
+    console.log(`clearHighlights for room ${roomCode}`);
+
+    io.to(roomCode).emit("clearHighlights", { room: roomCode });
+  });
+
+  socket.on("cardRevealed", ({ room, cardId }) => { // Listen to the event cardRevealed
+    const roomCode = room.toUpperCase();
+    console.log(`cardRevealed in room ${roomCode}: ${cardId}`);
+    io.to(roomCode).emit("cardRevealed", { room: roomCode, cardId }); // Send the clients that a card was revealed
+  });
+
+  socket.on("gameOver", ({ room, winningTeam, reason }) => {
+    const roomCode = room.toUpperCase();
+    console.log(`gameOver for room ${roomCode}: winner=${winningTeam}, reason=${reason}`);
+
+    io.to(roomCode).emit("gameOver", {
+      room: roomCode,
+      winningTeam,
+      reason
+    });
+  });
+
+
+  socket.on("disconnect", () => { // Listens to clients disconnecting
     console.log("Client disconnected:", socket.id); // Logs the disconnect
 
     for (const [roomCode, roomData] of Object.entries(rooms)) {

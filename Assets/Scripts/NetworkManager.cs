@@ -5,6 +5,7 @@ using UnityEngine;
 using static SocketIOUnity;
 using static PlayerData;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private LobbyManager _lm;
 
     public SocketIOUnity socket { get; private set; }
+
+    private string _roomCode;
 
     private void Start() // I want to get the code from the LobbyManger.Awake() first
     {
@@ -30,6 +33,8 @@ public class NetworkManager : MonoBehaviour
             Debug.LogError("NetworkManager: '_lm' is not set in the Inspector");
             return;
         }
+
+        _roomCode = _lm.roomCode;
 
         HandleSocketConnection();
     }
@@ -55,7 +60,7 @@ public class NetworkManager : MonoBehaviour
             var joinData = new
             {
                 name = "Host",
-                room = _lm.roomCode,  // The room code
+                room = _roomCode,  // The room code
                 role = "host",
                 team = "host"
             };
@@ -113,6 +118,79 @@ public class NetworkManager : MonoBehaviour
             GameManager.Instance.SetClue(data.clueWord, data.clueNumber, data.team);
         });
 
+        socket.OnUnityThread("highlightCard", response =>
+        {
+            HighlightCardData data = null;
+            try
+            {
+                data = response.GetValue<HighlightCardData>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to parse highlightCard: " + ex.Message);
+                return;
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("highlightCard data was null");
+                return;
+            }
+
+            Debug.Log($"Highlight card {data.cardId} = {data.highlighted} (team {data.team})"); 
+
+            GameManager.Instance.OnCardHighlight(data.cardId, data.team, data.highlighted);
+        });
+
+        socket.OnUnityThread("guessCard", response =>
+        {
+            GuessCardData data = null;
+
+            try
+            {
+                data = response.GetValue<GuessCardData>();
+            }
+
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to parse guessCard: " + ex.Message);
+                return;
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("guessCard data was null");
+                return;
+            }
+
+            Debug.Log($"Guess from team {data.team} card {data.cardId} in room {data.room}");
+
+            GameManager.Instance.HandleGuess(data.cardId, data.team);
+        });
+
+        socket.OnUnityThread("endGuessing", response =>
+        {
+            EndGuessingData data = null;
+            try
+            {
+                data = response.GetValue<EndGuessingData>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Failed to parse endGuessing: " + ex.Message);
+                return;
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("endGuessing data was null");
+                return;
+            }
+
+            Debug.Log($"endGuessing from team {data.team} in room {data.room}");
+            GameManager.Instance.OnEndGuessing(data.team);
+        });
+
         Debug.Log($"Connecting to Node server at {uri}");
         socket.Connect();
     }
@@ -133,9 +211,89 @@ public class NetworkManager : MonoBehaviour
 
         NetworkManager.Instance.socket.Emit("startGame", new
         {
-            room = _lm.roomCode
+            room = _roomCode
         });
 
-        Debug.Log($"Sent startGame for room {_lm.roomCode}");
+        Debug.Log($"Sent startGame for room {_roomCode}");
+    }
+
+    public void AfterStatusChange()
+    {
+        socket.Emit("turnStateUpdate", new
+        {
+            room = _roomCode,
+            activeTeam = GameManager.Instance._currentTeam.ToString().ToLower(), // The current team playing
+            phase = GameManager.Instance._currentStatus.ToString(), // The status of the game
+            guessesRemaining = GameManager.Instance._guessesRemaining // The amount of guesses left
+        });
+    }
+
+    public void SendGameOver(WinResult winner)
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendGameOver: socket is null");
+            return;
+        }
+
+        socket.Emit("gameOver", new
+        {
+            room = _roomCode,
+            winningTeam = winner.winningTeam,
+            reason = winner.reason
+        });
+
+        Debug.Log($"Sent gameOver for room {_roomCode}: winner={winner.winningTeam}, reason={winner.reason}");
+    }
+
+    public void SendCardRevealed(string cardId)
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendCardRevealed: socket is null");
+            return;
+        }
+
+        socket.Emit("cardRevealed", new
+        {
+            room = _roomCode,
+            cardId = cardId
+        });
+
+        Debug.Log($"Sent cardRevealed for room {_roomCode}, card {cardId}");
+    }
+
+    public void SendBoardState(List<CardStateInfo> cards) // Send the board to the HTML client
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendBoardState: socket is null");
+            return;
+        }
+
+        var data = new BoardStateData
+        {
+            room = _roomCode,
+            cards = cards
+        };
+
+        socket.Emit("boardState", data);
+        Debug.Log($"Sent boardState for room {_roomCode} with {cards.Count} cards");
+    }
+
+    public void SendClearHighlights()
+    {
+        if (socket == null)
+        {
+            Debug.LogWarning("SendClearHighlights: socket is null");
+            return;
+        }
+
+        socket.Emit("clearHighlights", new
+        {
+            room = _roomCode
+        });
+
+        Debug.Log($"Sent clearHighlights for room {_roomCode}");
     }
 }

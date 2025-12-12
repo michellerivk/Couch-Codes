@@ -48,13 +48,22 @@
   </div>
 
   <div id="guesser-screen"> 
-    <!-- fill in later -->
-    Game Started: Guesser
+    <h2>Game Started: Guesser</h2>
+
+    <p id="turn-status" class="turn-status"></p> <!-- Show current status (Waiting for a guess for example) -->
+
+    <div id="guesser-board" class="board-grid"></div>
+    <button id="endGuessBtn" class="end-guess-btn"> End guessing </button>
   </div>
 
   <div id="clue-screen"> 
     <!-- fill in later -->
     <label>Game Started: Clue Master</label>
+
+    <div id="clue-answer-board-wrapper">
+      <h3>Answer Board</h3>
+      <div id="clue-answer-board" class="board-grid clue-board"></div>
+    </div>
 
     <label>Clue Word:</label>
     <input id="clueWord" type="text" placeholder="Your Clue" />
@@ -71,7 +80,7 @@
       <option value="7">7</option>
       <option value="8">8</option>
       <option value="9">9</option>
-      <option value="infinity">infinty</option>
+      <option value="10">infinity</option>
     </select>
 
     <button id="submitClue">Submit Clue</button>
@@ -82,21 +91,29 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <script> 
-    const socket = io(); // connect to the same server that served this page
+    const socket = io(); // Connect to the same server that served this page
 
     let myRoom = null;
     let myRole = null;
     let myTeam = null;
 
+    let canGuessNow = false; // Can the guesser guess?
+    let canSubmitClueNow = false; // Can the clue master submit clue?
+
     const joinScreen    = document.getElementById("join-screen");
     const lobbyScreen   = document.getElementById("lobby-screen");
-    const guesserScreen = document.getElementById("guesser-screen");
+    const guesserScreen = document.getElementById("guesser-screen"); // The screen of the guesser
+    const guesserBoard = document.getElementById("guesser-board"); // The board of guesser itself
+    const clueAnswerBoard = document.getElementById("clue-answer-board"); // The board of the clue-master
     const clueScreen    = document.getElementById("clue-screen");
     const outputParagraph = document.getElementById("output");
     const lobbyInfo     = document.getElementById("lobby-info");
     const clueWordInput   = document.getElementById("clueWord");
     const clueNumberInput = document.getElementById("clueNumber");
     const submitClueBtn   = document.getElementById("submitClue");
+    const turnStatusLabel = document.getElementById("turn-status"); // Waiting for a guess for example
+    const endGuessBtn = document.getElementById("endGuessBtn");
+    
 
     socket.on("connect", () => {
       console.log("Connected to server with id:", socket.id);
@@ -154,7 +171,239 @@
         guesserScreen.style.display = "none";
         clueScreen.style.display = "none";
       }
-    })
+    });
+
+    socket.on("boardState", ({ room, cards }) => {
+      if (myRoom && room !== myRoom) return;
+
+      console.log("Received boardState:", room, cards);
+
+      //*** GUESSER BOARD ***// 
+      guesserBoard.innerHTML = ""; // Clear the previous board
+
+      cards.sort((a, b) => a.index - b.index); // Sort the cards by index (in ascending order)
+
+      cards.forEach(card => {
+        // Outer card container
+        const el = document.createElement("div");
+        el.className = "card";
+        el.dataset.cardId = card.id;
+
+        // Guess button for each card
+        const guessBtn = document.createElement("button");
+        guessBtn.className = "card-guess-btn";
+        guessBtn.textContent = "Guess";
+        guessBtn.disabled = !canGuessNow; // Check current turn state
+
+        // Word area
+        const wordEl = document.createElement("div");
+        wordEl.className = "card-word";
+        wordEl.textContent = card.word;
+        
+        // Highlight 
+        el.addEventListener("click", () => {
+          if (!canGuessNow) return; // If user can't guess, he can't highlight
+
+          el.classList.toggle("highlighted");          
+
+          const nowHighlighted = el.classList.contains("highlighted"); // Check the state of the card (Highlighted or not)
+
+          socket.emit("highlightCard", { // Send highlighting to Unity
+            room: myRoom,
+            team: myTeam,
+            cardId: card.id,
+            highlighted: nowHighlighted
+          });
+        });
+
+        // Click on guess button -> submit this card as a guess
+        guessBtn.addEventListener("click", (event) => {
+          event.stopPropagation(); // Stop the highlight if guessing
+
+          if (!canGuessNow) {
+            console.log("Cannot guess right now.");
+            return;
+          }
+
+          const confirmed = confirm(`Are you sure you want to guess?`);
+          if (!confirmed) return;
+
+          console.log("Emitting guessCard:", {
+            room: myRoom,
+            team: myTeam,
+            cardId: card.id
+          });
+
+          socket.emit("guessCard", {
+            room: myRoom,
+            team: myTeam,
+            cardId: card.id
+          });
+
+          // Optionally disable the button until the next turn update
+          //guessBtn.disabled = true;
+        });
+
+        // Create the card
+        el.appendChild(wordEl);
+        el.appendChild(guessBtn);
+
+        // Add to board
+        guesserBoard.appendChild(el);
+      });
+
+      //*** CLUE MASTER BOARD ***//
+      if (myRole === "clue" && clueAnswerBoard) {
+      clueAnswerBoard.innerHTML = "";
+
+      cards.forEach(card => {
+        const el = document.createElement("div");
+        el.className = "card clue-card";
+        el.dataset.cardId = card.id;
+        el.textContent = card.word;
+
+        switch (card.owner) {
+          case "red":
+            el.classList.add("card-red");
+            break;
+          case "blue":
+            el.classList.add("card-blue");
+            break;
+          case "bomb":
+            el.classList.add("card-bomb");
+            break;
+          case "neutral":
+          default:
+            el.classList.add("card-neutral");
+            break;
+        }
+
+        clueAnswerBoard.appendChild(el);
+      });
+    }
+
+
+    });
+
+    socket.on("turnStateUpdate", ({ activeTeam, phase, guessesRemaining }) => {
+      const isMyTeam = (myTeam === activeTeam);
+
+      const isMyTurnToGuess = isMyTeam && myRole === "guesser" && phase === "WaitingForGuesses"; // Guessers
+      const isMyTurnToClue = isMyTeam && myRole === "clue" && phase === "WaitingForClue"; // Clue - Masters
+
+      canGuessNow = isMyTurnToGuess;
+      canSubmitClueNow = isMyTurnToClue;
+
+      const guessButtons = document.querySelectorAll(".card-guess-btn"); 
+      guessButtons.forEach(btn => { btn.disabled = !canGuessNow; }) // If the user can't guess, disable the guess button
+
+      // Show board only when it's my turn to guess
+      if (isMyTurnToGuess) {
+        guesserBoard.classList.remove("board-hidden");
+      } 
+      else {
+        guesserBoard.classList.add("board-hidden");
+      }
+
+      if (endGuessBtn) {
+        endGuessBtn.disabled = !isMyTurnToGuess;
+        endGuessBtn.style.display = isMyTurnToGuess ? "inline-block" : "none";
+      }
+
+      // Toggle clue input
+      if (submitClueBtn) submitClueBtn.disabled = !canSubmitClueNow;
+      if (clueWordInput) clueWordInput.disabled = !canSubmitClueNow;
+      if (clueNumberInput) clueNumberInput.disabled = !canSubmitClueNow;
+
+      if (!turnStatusLabel) return;
+
+      if (phase === "GameOver") {
+        turnStatusLabel.textContent = "Game over.";
+        return;
+      }
+
+      if (myRole === "guesser") {
+        if (isMyTurnToGuess) {
+          turnStatusLabel.textContent = `Your team: time to guess! (${guessesRemaining} guess${guessesRemaining === 1 ? "" : "es"} left)`;
+        } 
+        else if (isMyTeam && phase === "WaitingForClue") {
+          // My team, but waiting for our clue master
+          turnStatusLabel.textContent = "Waiting for a clue from your clue master...";
+        } 
+        else if (!isMyTeam && phase === "WaitingForClue") {
+          // Other team, waiting for their clue
+          turnStatusLabel.textContent = `Waiting for the ${activeTeam.toUpperCase()} clue master to give a clue...`;
+        } 
+        else if (!isMyTeam && phase === "WaitingForGuesses") {
+          // Other team is guessing
+          turnStatusLabel.textContent = `Waiting for the ${activeTeam.toUpperCase()} team to guess...`;
+        } 
+        else { 
+          turnStatusLabel.textContent = "";
+        }
+      }
+    });
+
+    socket.on("cardRevealed", ({ room, cardId }) => {
+      if (myRoom && room !== myRoom) return;
+
+      // Clear guesser board
+      const cardEl = guesserBoard.querySelector(`[data-card-id="${cardId}"]`);
+      if (cardEl) {
+        cardEl.innerHTML = "";
+        cardEl.classList.add("card-empty");
+      }
+
+      // Clear C.M. board
+      if (clueAnswerBoard) {
+        const answerCardEl = clueAnswerBoard.querySelector(`[data-card-id="${cardId}"]`);
+        if (answerCardEl) {
+          answerCardEl.innerHTML = "";
+          answerCardEl.classList.add("card-empty");
+        }
+      }
+    });
+
+    socket.on("clearHighlights", ({ room }) => {
+      if (myRoom && room !== myRoom) return;
+
+      const highlightedCards = document.querySelectorAll(".card.highlighted");
+      highlightedCards.forEach(el => {
+        el.classList.remove("highlighted");
+      });
+    });
+
+    socket.on("gameOver", ({ room, winningTeam, reason }) => {
+      if (myRoom && room !== myRoom) return;
+
+      // Hide the board
+      guesserBoard.classList.add("board-hidden");
+
+      // Disable all guess buttons
+      const guessButtons = document.querySelectorAll(".card-guess-btn");
+      guessButtons.forEach(btn => btn.disabled = true);
+
+      // Create winner/loser message
+      const winnerUpper = winningTeam ? winningTeam.toUpperCase() : "";
+      const loserUpper = winningTeam === "red" ? "BLUE" : "RED";
+
+      let message = `The ${winnerUpper} team won.`;
+
+      if (reason === "bomb")
+      {
+        message = `The ${winnerUpper} team won because the ${loserUpper} team pressed the bomb.`;
+      }
+
+      else if (reason === "cards")
+      {
+        message = `The ${winnerUpper} team won by guessing all their words.`;
+      }
+
+      if (turnStatusLabel)
+      {
+        turnStatusLabel.textContent = message;
+      }
+    });
 
     let selectedRole = null;
 
@@ -176,7 +425,6 @@
       const name = document.getElementById("playerName").value;
       const room = document.getElementById("roomCode").value;
       const team = document.getElementById("team").value;
-      const outputParagraph = document.getElementById("output");
 
     if (!name || !room || !selectedRole || !team) {
         outputParagraph.textContent = "Please fill name, room, role and team.";
@@ -191,8 +439,13 @@
     });
 
     submitClueBtn.addEventListener("click", () => {
-      if (myRole !== "clue") { // If a non clue master ssends a clue -> return
+      if (myRole !== "clue") { // If a non clue master sends a clue -> return
         console.log("Only clue masters can submit a clue.");
+        return;
+      }
+
+      if (!canSubmitClueNow) { // If you send a clue on the wrong turn -> return
+        alert("It is not your team's turn to give a clue right now.\n" + "Wait until it is your team's turn!");
         return;
       }
 
@@ -212,6 +465,25 @@
       const payload = { room: myRoom, clueWord, clueNumber };
       console.log("Emitting submitClue:", payload);
       socket.emit("submitClue", payload);
+    });
+
+    endGuessBtn.addEventListener("click", () => {
+      if (!canGuessNow) {
+        // Optional: small popup so the player understands
+        alert("It is not your team's turn to guess.");
+        return;
+      }
+
+      if (!myRoom) {
+        console.warn("No room stored yet, can't end guessing.");
+        return;
+      }
+
+      const confirmed = confirm("End your team's guessing turn?");
+      if (!confirmed) return;
+
+      console.log("Emitting endGuessing:", { room: myRoom, team: myTeam });
+      socket.emit("endGuessing", { room: myRoom, team: myTeam });
     });
   </script>
 </body>
