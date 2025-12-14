@@ -123,6 +123,38 @@
       console.log("Disconnected from server");
     });
 
+    socket.on("roomClosed", ({ room, reason }) => {
+      // If this event is for a different room, ignore
+      if (myRoom && room !== myRoom) return;
+
+      console.log("roomClosed received for room:", room, "reason:", reason);
+
+      // Inform the player
+      alert("The host has left the game.\nThis room is now closed.");
+
+      // Reset local state
+      myRoom = null;
+      myRole = null;
+      myTeam = null;
+
+      // Clear boards and labels
+      if (guesserBoard) guesserBoard.innerHTML = "";
+      if (clueAnswerBoard) clueAnswerBoard.innerHTML = "";
+      if (turnStatusLabel) turnStatusLabel.textContent = "";
+      if (outputParagraph) {
+        outputParagraph.textContent = "Room closed by host. Join another room to keep playing.";
+      }
+
+      // Hide all game-related screens
+      lobbyScreen.style.display = "none";
+      guesserScreen.style.display = "none";
+      clueScreen.style.display = "none";
+
+      // Show the join screen again
+      joinScreen.style.display = "block";
+    });
+
+
     socket.on("joinSuccess", ({ room, name, role, team }) => {
       console.log("joinSuccess:", room, name, role, team);
 

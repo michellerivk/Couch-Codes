@@ -249,24 +249,44 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     console.log("Client disconnected:", socket.id); // Logs the disconnect
 
     for (const [roomCode, roomData] of Object.entries(rooms)) {
-      if (roomData.players[socket.id]) {
+      const player = roomData.players[socket.id];
+      if (!player) continue;
 
-        delete roomData.players[socket.id]; // Remove the player from the room
+      const wasHost = player.role === "host";
 
-        const players = Object.entries(roomData.players).map(([id, player]) => ({ // Update the player list (build it again)
-          id,
-          name: player.name,
-          role: player.role,
-          team: player.team
-        }));
+      delete roomData.players[socket.id]; // Remove the player from the room
 
-        io.to(roomCode).emit("roomUpdate", { room: roomCode, players }); // Tell the room the player left
+      if (wasHost) {
+        // Host left -> close the entire room for everyone
+        console.log(`Host left room ${roomCode}. Closing room.`);
 
-        if (players.length === 0) { // If the room is empty -> delete it
-          delete rooms[roomCode];
-          console.log(`Room ${roomCode} is now empty and was removed.`);
-        }
+        // Tell all clients in the room that it has been closed
+        io.to(roomCode).emit("roomClosed", {
+          room: roomCode,
+          reason: "hostLeft"
+        });
+
+        // Delete the room from memory
+        delete rooms[roomCode];
+
+        break;
       }
+
+      const players = Object.entries(roomData.players).map(([id, player]) => ({ // Update the player list (build it again)
+        id,
+        name: player.name,
+        role: player.role,
+        team: player.team
+      }));
+
+      io.to(roomCode).emit("roomUpdate", { room: roomCode, players }); // Tell the room the player left
+
+      if (players.length === 0) { // If the room is empty -> delete it
+        delete rooms[roomCode];
+        console.log(`Room ${roomCode} is now empty and was removed.`);
+      }
+
+      break;
     }
   });
 
