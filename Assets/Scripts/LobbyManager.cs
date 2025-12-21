@@ -17,7 +17,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject _playerStats;
     [SerializeField] private Transform _redTeam;
     [SerializeField] private Transform _blueTeam;
-    [SerializeField] private TextMeshProUGUI _language;
+    [SerializeField] private TextMeshProUGUI _languageText;
 
     public string roomCode { get; private set; }
 
@@ -38,24 +38,22 @@ public class LobbyManager : MonoBehaviour
 
         _languageCounter = PlayerPrefs.GetInt("Language");
 
-        _language.text = "Language: ";
-
         switch (_languageCounter)
         {
             case 0:
-                _language.text += "English";
+                _languageText.text += "Language: English";
                 return;
 
             case 1:
-                _language.text += "Hebrew";
+                _languageText.text += "Language: Hebrew";
                 return;
 
             case 2:
-                _language.text += "Russian";
+                _languageText.text += "Language: Russian";
                 return;
 
             case 3:
-                _language.text += "Czech";
+                _languageText.text += "Language: Czech";
                 return;
         }
     }
@@ -217,7 +215,7 @@ public class LobbyManager : MonoBehaviour
 
     public void ChangeLanguage()
     {
-        _language.text = "Language: ";
+        _languageText.text = "Language: ";
 
         if (_languageCounter < 3)
             _languageCounter++;
@@ -227,22 +225,31 @@ public class LobbyManager : MonoBehaviour
         switch(_languageCounter)
         {
             case 0:
-                _language.text += "English";
+                _languageText.text += "English";
+                SaveLanguage(0);
                 return;
 
             case 1:
-                _language.text += "Hebrew";
+                _languageText.text += "Hebrew";
+                SaveLanguage(1);
                 return;
 
             case 2:
-                _language.text += "Russian";
+                _languageText.text += "Russian";
+                SaveLanguage(2);
                 return;
 
             case 3:
-                _language.text += "Czech";
+                _languageText.text += "Czech";
+                SaveLanguage(3);
                 return;
         }
+    }
 
-        PlayerPrefs.SetInt("Language", _languageCounter);
+    private void SaveLanguage(int language)
+    {
+        PlayerPrefs.SetInt("Language", language);
+        PlayerPrefs.Save();
+        Debug.Log($"Saved new language, number: {PlayerPrefs.GetInt("Language")}");
     }
 }

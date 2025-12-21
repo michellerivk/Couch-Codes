@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
         _guessesRemaining = 0;
         _wasBombPressed = false;
 
-        _boardLanguage = (Language)PlayerPrefs.GetInt("Language");
+        _boardLanguage = (Language)PlayerPrefs.GetInt("Language", 0);
 
         // Some starting settings 
         _clueObject.SetActive(true);

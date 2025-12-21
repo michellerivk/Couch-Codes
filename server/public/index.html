@@ -37,7 +37,8 @@
       </div>
     </div>
 
-    <button id="joinBtn">Join Game</button> <!-- Join game button -->
+    <button id="joinBtn">Join Game</button> <!-- Join game -->
+    <button id="reconnectBtn" style="display:none;">Reconnect to last game</button> <!-- Reconnect after refresh -->
     <p id="output"></p> <!-- Debugging: Place to present the input of the name -->
   </div>
 
@@ -113,7 +114,42 @@
     const submitClueBtn   = document.getElementById("submitClue");
     const turnStatusLabel = document.getElementById("turn-status"); // Waiting for a guess for example
     const endGuessBtn = document.getElementById("endGuessBtn");
-    
+    const reconnectBtn = document.getElementById("reconnectBtn");
+
+    // Try to restore last session details
+    let savedSession = null;
+    let selectedRole = null;
+    try 
+    {
+      const raw = localStorage.getItem("couchcodes_lastSession");
+      if (raw) {
+        savedSession = JSON.parse(raw);
+      }
+    } 
+    catch (e) 
+    {
+      console.warn("Failed to load last session:", e);
+    }
+
+    if (savedSession) {
+      // Pre-fill the form
+      document.getElementById("playerName").value = savedSession.name || "";
+      document.getElementById("roomCode").value   = savedSession.room || "";
+      document.getElementById("team").value       = savedSession.team || "red";
+
+      // Select the right role button visually
+      const targetRole = savedSession.role;
+      if (targetRole) {
+        const roleButtons = document.querySelectorAll("button[data-role]");
+        roleButtons.forEach(btn => {
+          btn.classList.toggle("selected", btn.dataset.role === targetRole);
+        });
+        selectedRole = targetRole;
+      }
+
+      // Show reconnect button
+      reconnectBtn.style.display = "inline-block";
+    }
 
     socket.on("connect", () => {
       console.log("Connected to server with id:", socket.id);
@@ -164,6 +200,19 @@
       myTeam = team;
 
       outputParagraph.textContent = `Joined room ${room} as ${team} ${role}`;
+
+      // Save this session so we can reconnect after a refresh
+      try 
+      {
+        const lastSession = { room, name, role, team };
+
+        // Saves the info locally on phone (5-10 mb)
+        localStorage.setItem("couchcodes_lastSession", JSON.stringify(lastSession)); 
+      } 
+      catch (e)
+      {
+        console.warn("Failed to save last session:", e);
+      }
 
       joinScreen.style.display = "none"; // Hide the join screen
       lobbyScreen.style.display  = "block"; // Show the lobby screen
@@ -437,7 +486,7 @@
       }
     });
 
-    let selectedRole = null;
+    //let selectedRole = null;
 
     const roleButtons = document.querySelectorAll("button[data-role]"); // Find all button elements in the page that have a data-role attribute
 
@@ -468,6 +517,31 @@
         socket.emit("joinRoom", payload);
 
       outputParagraph.textContent = "Joining room...";
+    });
+
+    reconnectBtn.addEventListener("click", () => {
+      if (!savedSession) {
+        alert("No previous game found to reconnect to.");
+        return;
+      }
+
+      const { name, room, role, team } = savedSession;
+
+      if (!room) {
+        alert("Last game data is incomplete. Please join normally.");
+        return;
+      }
+
+      // Update
+      myRoom = room;
+      myRole = role;
+      myTeam = team;
+
+      const payload = { name, room, role, team };
+      console.log("Reconnecting:", payload);
+      socket.emit("joinRoom", payload);
+
+      outputParagraph.textContent = "Reconnecting to last game...";
     });
 
     submitClueBtn.addEventListener("click", () => {
@@ -501,7 +575,6 @@
 
     endGuessBtn.addEventListener("click", () => {
       if (!canGuessNow) {
-        // Optional: small popup so the player understands
         alert("It is not your team's turn to guess.");
         return;
       }
