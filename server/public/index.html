@@ -57,7 +57,6 @@
   </div>
 
   <div id="clue-screen"> 
-    <!-- fill in later -->
     <label>Game Started: Clue Master</label>
 
     <div id="clue-answer-board-wrapper">
@@ -65,10 +64,14 @@
       <div id="clue-answer-board" class="board-grid clue-board"></div>
     </div>
 
-    <label>Clue Word:</label>
-    <input id="clueWord" type="text" placeholder="Your Clue" />
+    <div class="clue-controls">
+  <div class="field">
+    <label for="clueWord">Clue word</label>
+    <input id="clueWord" type="text" placeholder="Your clue" autocomplete="off" />
+  </div>
 
-    <label>How many</label>
+  <div class="field small">
+    <label for="clueNumber">How many</label>
     <select name="clueNumber" id="clueNumber">
       <option value="0">0</option>
       <option value="1">1</option>
@@ -82,8 +85,11 @@
       <option value="9">9</option>
       <option value="10">infinity</option>
     </select>
+  </div>
 
-    <button id="submitClue">Submit Clue</button>
+  <button id="submitClue" type="button" class="btn-clue">Submit clue</button>
+</div>
+
 
 
   </div>
@@ -128,6 +134,12 @@
     {
       console.warn("Failed to load last session:", e);
     }
+
+    if (savedSession) {
+      outputParagraph.textContent =
+        `Saved session found for room ${savedSession.room}. Press Join Game to reconnect, or edit fields to join a different room.`;
+    }
+
 
     if (savedSession) {
       document.getElementById("playerName").value = savedSession.name || "";
@@ -200,8 +212,6 @@
 
       try { localStorage.removeItem("couchcodes_lastSession"); } catch (e) {}
       savedSession = null;
-      reconnectBtn.style.display = "none";
-
     });
 
 
@@ -234,7 +244,21 @@
       clueScreen.style.display    = "none";
 
       if (lobbyInfo) {
-        lobbyInfo.textContent = `Room ${room} – You are ${team} ${role}. Waiting for host to start...`;
+        const roleLabel = role === "clue" ? "CLUE MASTER" : "GUESSER";
+
+        // Replaces the lobby text with structured HTML
+        lobbyInfo.innerHTML = 
+        ` <div class="lobby-badges">
+            <span class="pill pill-room">ROOM <span class="code">${room}</span></span>
+            <span class="pill pill-${team}">${team.toUpperCase()}</span>
+            <span class="pill pill-role">${roleLabel}</span>
+          </div>
+          <div class="lobby-status">
+            <span class="dot"></span>
+            Waiting for the host to start...
+          </div>
+        `;
+
       }
     });
 
@@ -561,25 +585,6 @@
       console.log("Emitting joinRoom:", payload);
       socket.emit("joinRoom", payload);
       outputParagraph.textContent = "Joining room...";
-    });
-
-    reconnectBtn.addEventListener("click", () => {
-      if (!savedSession) {
-        alert("No previous game found to reconnect to.");
-        return;
-      }
-
-      const payload = { 
-        name: savedSession.name, 
-        room: savedSession.room, 
-        role: savedSession.role, 
-        team: savedSession.team 
-      };
-
-      console.log("Reconnecting:", payload);
-      socket.emit("joinRoom", payload);
-
-      outputParagraph.textContent = "Reconnecting to last game...";
     });
 
     submitClueBtn.addEventListener("click", () => {
