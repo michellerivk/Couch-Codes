@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     [Header("Board Objects")]
     [SerializeField] private Card _cardPrefab; // A card on the board
     [SerializeField] private Transform _boardParent; // The board
-    [SerializeField] private Language _boardLanguage = Language.English; // The language of the board
+    public Language _boardLanguage; // The language of the board
 
     [Header("CM's Clues")]
     [SerializeField] GameObject _clueObject;
@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
 
     [Header("End Game")]
     [SerializeField] GameObject _gameOverObject;
+    [SerializeField] private TextMeshProUGUI _endScreenText;
 
     private List<CardStateInfo> _boardLayoutForClients = new List<CardStateInfo>(); // Info for the HTML board
 
@@ -64,6 +65,8 @@ public class GameManager : MonoBehaviour
         _currentStatus = Status.WaitingForClue;  // Waiting for first clue
         _guessesRemaining = 0;
         _wasBombPressed = false;
+
+        _boardLanguage = (Language)PlayerPrefs.GetInt("Language", 0);
 
         // Some starting settings 
         _clueObject.SetActive(true);
@@ -447,29 +450,6 @@ public class GameManager : MonoBehaviour
         NetworkManager.Instance.SendClearHighlights();
     }
 
-    private void StopGame(WinResult winner) 
-    {
-        Debug.Log($"Game Over! Winner: {winner.winningTeam}, reason: {winner.reason}");
-
-        _currentStatus = Status.GameOver;
-        _currentTeam = winner.winningTeam == "red" ? Team.red : Team.blue;
-
-
-        foreach ( var card in _cardsById)
-        {
-            card.Value.RevealCard();
-        }
-
-        _clueObject.SetActive(false);
-        _gameOverObject.SetActive(true);
-
-        // Send final turn state (phase = GameOver)
-        NetworkManager.Instance.AfterStatusChange();
-
-        // Tell phones who won and why
-        NetworkManager.Instance.SendGameOver(winner);
-    }
-
     // A fucntion for ending a round - incase I'd like to add anything else
     private void EndRound()
     {
@@ -495,6 +475,30 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("OnEndGuessing: ending round early by player request.");
         EndRound();
+    }
+
+    private void StopGame(WinResult winner)
+    {
+        Debug.Log($"Game Over! Winner: {winner.winningTeam}, reason: {winner.reason}");
+
+        _currentStatus = Status.GameOver;
+        _currentTeam = winner.winningTeam == "red" ? Team.red : Team.blue;
+
+
+        foreach (var card in _cardsById)
+        {
+            card.Value.RevealCard();
+        }
+
+        _clueObject.SetActive(false);
+        _endScreenText.text = $"Game Over!\n The {winner.winningTeam} Team WON";
+        _gameOverObject.SetActive(true);
+
+        // Send final turn state (phase = GameOver)
+        NetworkManager.Instance.AfterStatusChange();
+
+        // Tell phones who won and why
+        NetworkManager.Instance.SendGameOver(winner);
     }
 
     // Clear all the remaining highlights from the words

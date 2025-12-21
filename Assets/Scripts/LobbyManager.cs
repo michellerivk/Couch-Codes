@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static PlayerData;
+using static Unity.VisualScripting.Icons;
 
 public class LobbyManager : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject _playerStats;
     [SerializeField] private Transform _redTeam;
     [SerializeField] private Transform _blueTeam;
+    [SerializeField] private TextMeshProUGUI _languageText;
 
     public string roomCode { get; private set; }
 
@@ -23,15 +25,37 @@ public class LobbyManager : MonoBehaviour
     private int _bluePlayers = 0;
     private int _codeMasters = 0;
 
+    private int _languageCounter;
+
     public bool canSwitchScene { get; private set; } = false;
 
     Dictionary<string, string> _codeMastersTeam = new Dictionary<string, string>();
-
 
     private void Awake()
     {
         roomCode = CreateRoomCode();
         _codeText.text += roomCode;
+
+        _languageCounter = PlayerPrefs.GetInt("Language");
+
+        switch (_languageCounter)
+        {
+            case 0:
+                _languageText.text += "Language: English";
+                return;
+
+            case 1:
+                _languageText.text += "Language: Hebrew";
+                return;
+
+            case 2:
+                _languageText.text += "Language: Russian";
+                return;
+
+            case 3:
+                _languageText.text += "Language: Czech";
+                return;
+        }
     }
 
     // Creates a random room code
@@ -41,7 +65,7 @@ public class LobbyManager : MonoBehaviour
         int maxCodeLength = 4;
 
         string[] PossibleLetters = new string[26] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-        string[] PossibleNumbers = new string[10] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+        string[] PossibleNumbers = new string[10] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
         for (int i = 0; i < maxCodeLength; i++) // Generate the code
         {
@@ -162,7 +186,7 @@ public class LobbyManager : MonoBehaviour
             return;
         }
         */
-        
+
 
 
         if ((_redPlayers + _bluePlayers) > 10)
@@ -187,5 +211,45 @@ public class LobbyManager : MonoBehaviour
 
         canSwitchScene = true;
         SceneSwitcher.SwitchScene(scene);
+    }
+
+    public void ChangeLanguage()
+    {
+        _languageText.text = "Language: ";
+
+        if (_languageCounter < 3)
+            _languageCounter++;
+        else
+            _languageCounter = 0;
+
+        switch(_languageCounter)
+        {
+            case 0:
+                _languageText.text += "English";
+                SaveLanguage(0);
+                return;
+
+            case 1:
+                _languageText.text += "Hebrew";
+                SaveLanguage(1);
+                return;
+
+            case 2:
+                _languageText.text += "Russian";
+                SaveLanguage(2);
+                return;
+
+            case 3:
+                _languageText.text += "Czech";
+                SaveLanguage(3);
+                return;
+        }
+    }
+
+    private void SaveLanguage(int language)
+    {
+        PlayerPrefs.SetInt("Language", language);
+        PlayerPrefs.Save();
+        Debug.Log($"Saved new language, number: {PlayerPrefs.GetInt("Language")}");
     }
 }
