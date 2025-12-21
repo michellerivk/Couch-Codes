@@ -15,6 +15,7 @@ public class NetworkManager : MonoBehaviour
     public SocketIOUnity socket { get; private set; }
 
     private string _roomCode;
+    private bool _didShutdown = false;
 
     private void Start() // I want to get the code from the LobbyManger.Awake() first
     {
@@ -295,5 +296,41 @@ public class NetworkManager : MonoBehaviour
         });
 
         Debug.Log($"Sent clearHighlights for room {_roomCode}");
+    }
+
+    private void OnApplicationQuit()
+    {
+        ShutdownSocket();
+    }
+
+    private void OnDisable()
+    {
+        ShutdownSocket();
+    }
+
+    private void OnDestroy()
+    {
+        ShutdownSocket();
+    }
+
+    private void ShutdownSocket()
+    {
+        if (_didShutdown) return;
+
+        _didShutdown = true;
+
+        if (socket == null) return;
+
+        if (!string.IsNullOrEmpty(_roomCode))
+        {
+            socket.Emit("closeRoom", new { room = _roomCode });
+            Debug.Log($"Sent closeRoom for room {_roomCode}");
+        }
+
+        // Disconnect
+        socket.Disconnect();
+        Debug.Log("Socket Disconnect() called");
+
+        socket = null;
     }
 }

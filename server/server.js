@@ -71,7 +71,14 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
       return;
     }
 
-    rooms[roomCode] = { players: {} }; // Create an empty player inside a room so that on connection we will get the player's info
+    rooms[roomCode] = {
+      players: {},
+      gameStarted: false,
+      isGameOver: false,
+      lastTurnState: null,
+      lastBoardState: null,
+      revealedCards: new Set()
+    }; // Create an empty player inside a room so that on connection we will get the player's info
   }
 
   if (role !== "host") { // If a non host joins - reject him
@@ -105,6 +112,48 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
 
   socket.emit("joinSuccess", { room: roomCode, name, role, team }); // Tell the client the join was successful
 
+  const roomDataAfterJoin = rooms[roomCode]; // Data for reconnecting after a refresh
+
+  // If the game is over, immediately show the final state instead of the lobby
+  if (roomDataAfterJoin.isGameOver) {
+
+    if (roomDataAfterJoin.lastBoardState) {
+      socket.emit("boardState", { room: roomCode, cards: roomDataAfterJoin.lastBoardState });
+    }
+
+    // Ensure their UI is in "GameOver" phase
+    if (roomDataAfterJoin.lastTurnState) {
+      socket.emit("turnStateUpdate", roomDataAfterJoin.lastTurnState);
+    } else {
+      socket.emit("turnStateUpdate", {
+        room: roomCode,
+        activeTeam: "red",
+        phase: "GameOver",
+        guessesRemaining: 0
+      });
+    }
+
+    // Send the winner message
+    if (roomDataAfterJoin.lastGameOver) {
+      socket.emit("gameOver", roomDataAfterJoin.lastGameOver);
+    }
+
+  } 
+  // Otherwise, normal in-progress catch-up
+  else if (roomDataAfterJoin.gameStarted) {
+
+    socket.emit("gameStarted", { room: roomCode });
+
+    if (roomDataAfterJoin.lastBoardState) {
+      socket.emit("boardState", { room: roomCode, cards: roomDataAfterJoin.lastBoardState });
+    }
+
+    if (roomDataAfterJoin.lastTurnState) {
+      socket.emit("turnStateUpdate", roomDataAfterJoin.lastTurnState);
+    }
+  }
+
+
   const players = Object.entries(rooms[roomCode].players).map(([id, player]) => ({ // Creates an array of the players.
       id,
       name: player.name,
@@ -127,13 +176,39 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
 
   socket.on("startGame", ({ room }) => { // When the host presses start game -> send a messsage to the clients
     const roomCode = room.toUpperCase();
+    const roomData = rooms[roomCode];
+    
+    if (!roomData) return;
+
+    roomData.gameStarted = true;
+
     console.log(`startGame received for room ${roomCode}`);
 
     io.to(roomCode).emit("gameStarted", { room: roomCode });
   });
 
+  socket.on("closeRoom", ({ room }) => {
+    const roomCode = (room || "").toUpperCase();
+    const roomData = rooms[roomCode];
+    if (!roomData) return;
+
+    const player = roomData.players[socket.id];
+    if (!player || player.role !== "host") return;
+
+    console.log(`closeRoom from host in room ${roomCode}`);
+
+    io.to(roomCode).emit("roomClosed", { room: roomCode, reason: "hostClosed" });
+    io.in(roomCode).socketsLeave(roomCode);
+    delete rooms[roomCode];
+  });
+
   socket.on("boardState", ({ room, cards }) => {
     const roomCode = room.toUpperCase();
+    const roomData = rooms[roomCode];
+    if (!roomData) return;
+
+    roomData.lastBoardState = cards;
+
     console.log(`Received boardState for room ${roomCode} with ${cards.length} cards`);
     io.to(roomCode).emit("boardState", { room: roomCode, cards });
   });
@@ -181,6 +256,16 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
 
   socket.on("turnStateUpdate", data => {
     const roomCode = data.room.toUpperCase();
+    const roomData = rooms[roomCode];
+
+    if (!roomData) return;
+
+    roomData.lastTurnState = data;
+
+    if (data.phase === "GameOver") {
+    roomData.isGameOver = true;
+  }
+
     io.to(roomCode).emit("turnStateUpdate", data);
   });
 
@@ -235,6 +320,13 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
 
   socket.on("gameOver", ({ room, winningTeam, reason }) => {
     const roomCode = room.toUpperCase();
+    const roomData = rooms[roomCode];
+
+    if (!roomData) return;
+
+    roomData.isGameOver = true;
+    roomData.lastGameOver = { room: roomCode, winningTeam, reason };
+
     console.log(`gameOver for room ${roomCode}: winner=${winningTeam}, reason=${reason}`);
 
     io.to(roomCode).emit("gameOver", {
@@ -244,9 +336,34 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
     });
   });
 
+  socket.on("canReconnect", ({ room }) => {
+    const roomCode = (room || "").toUpperCase();
+    const roomData = rooms[roomCode];
 
-  socket.on("disconnect", () => { // Listens to clients disconnecting
-    console.log("Client disconnected:", socket.id); // Logs the disconnect
+    // Room must exist
+    if (!roomData) {
+      socket.emit("canReconnectResult", { room: roomCode, ok: false, reason: "noRoom" });
+      return;
+    }
+
+    // Host must still be connected
+    const hasHost = Object.values(roomData.players).some(p => p.role === "host");
+    if (!hasHost) {
+      socket.emit("canReconnectResult", { room: roomCode, ok: false, reason: "noHost" });
+      return;
+    }
+
+    // Do not allow reconnect after game over
+    if (roomData.isGameOver) {
+      socket.emit("canReconnectResult", { room: roomCode, ok: false, reason: "gameOver" });
+      return;
+    }
+
+    socket.emit("canReconnectResult", { room: roomCode, ok: true });
+  });
+
+  socket.on("disconnect", (reason) => { // Listens to clients disconnecting
+    console.log("Client disconnected:", socket.id, "reason:", reason); // Logs the disconnect
 
     for (const [roomCode, roomData] of Object.entries(rooms)) {
       const player = roomData.players[socket.id];

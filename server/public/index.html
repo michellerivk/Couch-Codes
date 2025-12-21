@@ -38,7 +38,6 @@
     </div>
 
     <button id="joinBtn">Join Game</button> <!-- Join game -->
-    <button id="reconnectBtn" style="display:none;">Reconnect to last game</button> <!-- Reconnect after refresh -->
     <p id="output"></p> <!-- Debugging: Place to present the input of the name -->
   </div>
 
@@ -114,7 +113,6 @@
     const submitClueBtn   = document.getElementById("submitClue");
     const turnStatusLabel = document.getElementById("turn-status"); // Waiting for a guess for example
     const endGuessBtn = document.getElementById("endGuessBtn");
-    const reconnectBtn = document.getElementById("reconnectBtn");
 
     // Try to restore last session details
     let savedSession = null;
@@ -132,12 +130,10 @@
     }
 
     if (savedSession) {
-      // Pre-fill the form
       document.getElementById("playerName").value = savedSession.name || "";
-      document.getElementById("roomCode").value   = savedSession.room || "";
-      document.getElementById("team").value       = savedSession.team || "red";
+      document.getElementById("roomCode").value = savedSession.room || "";
+      document.getElementById("team").value = savedSession.team || "red";
 
-      // Select the right role button visually
       const targetRole = savedSession.role;
       if (targetRole) {
         const roleButtons = document.querySelectorAll("button[data-role]");
@@ -146,18 +142,31 @@
         });
         selectedRole = targetRole;
       }
-
-      // Show reconnect button
-      reconnectBtn.style.display = "inline-block";
-    }
+}
 
     socket.on("connect", () => {
       console.log("Connected to server with id:", socket.id);
+
+      // Validate reconnectability
+      if (savedSession?.room) {
+        socket.emit("canReconnect", { room: savedSession.room });
+      }
     });
 
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
     });
+
+    socket.on("canReconnectResult", ({ ok, reason }) => {
+      if (!savedSession) return;
+
+      if(!ok) {
+        try { localStorage.removeItem("couchcodes_lastSession"); } catch (e) {}
+        savedSession = null;
+        console.log("Reconnect not allowed:", reason);
+      }
+    });
+
 
     socket.on("roomClosed", ({ room, reason }) => {
       // If this event is for a different room, ignore
@@ -188,6 +197,11 @@
 
       // Show the join screen again
       joinScreen.style.display = "block";
+
+      try { localStorage.removeItem("couchcodes_lastSession"); } catch (e) {}
+      savedSession = null;
+      reconnectBtn.style.display = "none";
+
     });
 
 
@@ -228,11 +242,22 @@
       console.log("joinError:", message);
       outputParagraph.textContent = message;
 
-      // Make sure we stay on the join screen
+      // If the room is gone or host is missing, delete saved session
+      const shouldClear =
+        message.includes("Host hasn't") ||
+        message.includes("Room does not exist") ||
+        message.includes("room") && message.includes("closed");
+
+      if (shouldClear) {
+        try { localStorage.removeItem("couchcodes_lastSession"); } catch (e) {}
+        savedSession = null;
+      }
+
       joinScreen.style.display = "block";
       guesserScreen.style.display = "none";
       clueScreen.style.display = "none";
     });
+
 
     socket.on("gameStarted", ({room}) => {
       if(myRoom && room != myRoom) // Return if started for a different room
@@ -399,9 +424,23 @@
       if (!turnStatusLabel) return;
 
       if (phase === "GameOver") {
+        // Ensure we’re on a game screen
+        lobbyScreen.style.display = "none";
+        joinScreen.style.display = "none";
+
+        // Show the appropriate screen for the role so the label is visible
+        if (myRole === "guesser") {
+          guesserScreen.style.display = "block";
+          clueScreen.style.display = "none";
+        } else if (myRole === "clue") {
+          clueScreen.style.display = "block";
+          guesserScreen.style.display = "none";
+        }
+
         turnStatusLabel.textContent = "Game over.";
         return;
       }
+
 
       if (myRole === "guesser") {
         if (isMyTurnToGuess) {
@@ -502,20 +541,25 @@
         });
     });
 
-    document.getElementById("joinBtn").addEventListener("click", () => { // Get inputs
-      const name = document.getElementById("playerName").value;
-      const room = document.getElementById("roomCode").value;
-      const team = document.getElementById("team").value;
+    document.getElementById("joinBtn").addEventListener("click", () => {
+      // Prefer current UI inputs, fallback to saved session if available
+      const nameInput = document.getElementById("playerName").value.trim();
+      const roomInput = document.getElementById("roomCode").value.trim();
+      const teamInput = document.getElementById("team").value;
 
-    if (!name || !room || !selectedRole || !team) {
+      const name = nameInput || savedSession?.name;
+      const room = roomInput || savedSession?.room;
+      const team = teamInput || savedSession?.team;
+      const role = selectedRole || savedSession?.role;
+
+      if (!name || !room || !role || !team) {
         outputParagraph.textContent = "Please fill name, room, role and team.";
         return;
       }
 
-      const payload = { name, room, role: selectedRole, team };
-        console.log("Emitting joinRoom:", payload);
-        socket.emit("joinRoom", payload);
-
+      const payload = { name, room, role, team };
+      console.log("Emitting joinRoom:", payload);
+      socket.emit("joinRoom", payload);
       outputParagraph.textContent = "Joining room...";
     });
 
@@ -525,19 +569,13 @@
         return;
       }
 
-      const { name, room, role, team } = savedSession;
+      const payload = { 
+        name: savedSession.name, 
+        room: savedSession.room, 
+        role: savedSession.role, 
+        team: savedSession.team 
+      };
 
-      if (!room) {
-        alert("Last game data is incomplete. Please join normally.");
-        return;
-      }
-
-      // Update
-      myRoom = room;
-      myRole = role;
-      myTeam = team;
-
-      const payload = { name, room, role, team };
       console.log("Reconnecting:", payload);
       socket.emit("joinRoom", payload);
 
