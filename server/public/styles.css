@@ -1,100 +1,487 @@
+/* =========================
+   Couch Codes — Codenames dossier theme
+   ========================= */
+
+:root{
+  --bg0: #0b0f17;
+  --bg1: #0f1626;
+  --paper: #f3eddc;
+  --paper2:#efe5cb;
+  --ink: #141414;
+  --muted: #5a5a5a;
+
+  --red:  #c43d3d;
+  --blue: #2f6fd6;
+
+  --line: rgba(20,20,20,0.15);
+  --line2: rgba(255,255,255,0.08);
+
+  --shadow: 0 18px 55px rgba(0,0,0,.45);
+  --radius: 18px;
+}
+
+*{ box-sizing:border-box; }
+html, body{ height:100%; }
+
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  color: rgba(255,255,255,.92);
+
+  /* Dark “briefing room” background */
+  background:
+    radial-gradient(1200px 600px at 20% 10%, rgba(47,111,214,.18), transparent 55%),
+    radial-gradient(900px 500px at 85% 35%, rgba(196,61,61,.16), transparent 60%),
+    radial-gradient(900px 700px at 50% 90%, rgba(255,255,255,.06), transparent 62%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+  overflow-x:hidden;
+}
+
+/* Subtle “grid” overlay */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 54px 54px;
+  opacity:.45;
+}
+
+/* Header */
+h1{
+  margin: 34px 16px 18px;
+  text-align:center;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  font-weight:800;
+  font-size: clamp(28px, 4vw, 44px);
+  position:relative;
+}
+
+h1::after{
+  content:"SECURE ACCESS";
+  display:block;
+  margin-top:10px;
+  letter-spacing:.35em;
+  font-size: 12px;
+  font-weight:700;
+  opacity:.55;
+}
+
+/* Hide non-join screens by default (JS will show them when needed) */
 #lobby-screen,
 #guesser-screen,
-#clue-screen {
-  display: none;
+#clue-screen{
+  display:none;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ===========
+   Join Screen
+   =========== */
+
+#join-screen{
+  width: min(560px, 92vw);
+  margin: 0 auto 42px;
+  padding: 26px 22px 20px;
+
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, var(--paper), var(--paper2));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  position:relative;
+  overflow:hidden;
+  border: 1px solid rgba(0,0,0,.08);
 }
 
-/* Optional but nice */
-body {
-  font-family: system-ui, sans-serif;
+/* “Dossier” top strip */
+#join-screen::before{
+  content:"CLASSIFIED";
+  position:absolute;
+  top: 14px;
+  right: -52px;
+  transform: rotate(18deg);
+  padding: 10px 64px;
+  background: rgba(20,20,20,.9);
+  color: rgba(255,255,255,.92);
+  font-weight: 900;
+  letter-spacing: .28em;
+  font-size: 11px;
+  text-transform: uppercase;
+  box-shadow: 0 10px 18px rgba(0,0,0,.25);
 }
 
-/* Guesser screen padding, but keep it inside the viewport */
-#guesser-screen {
-  padding: 12px;
+/* faint stamp */
+#join-screen::after{
+  content:"COUCH CODES OPERATION";
+  position:absolute;
+  left: 16px;
+  top: 16px;
+  font-weight:800;
+  font-size: 12px;
+  letter-spacing: .18em;
+  opacity: .18;
+  transform: rotate(-2deg);
 }
 
-.board-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 columns */
-  gap: 8px;
+#join-screen > div{
+  margin-top: 14px;
+}
+
+/* Labels + inputs */
+#join-screen label{
+  display:block;
+  margin: 14px 0 8px;
+  font-weight: 800;
+  letter-spacing:.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: rgba(20,20,20,.78);
+}
+
+#join-screen input,
+#join-screen select{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(20,20,20,.18);
+  background: rgba(255,255,255,.65);
+  color: var(--ink);
+  outline: none;
+  font-size: 16px;
+  box-shadow: 0 10px 20px rgba(0,0,0,.08);
+}
+
+#join-screen input:focus,
+#join-screen select:focus{
+  border-color: rgba(20,20,20,.35);
+  box-shadow: 0 0 0 4px rgba(47,111,214,.18), 0 10px 22px rgba(0,0,0,.10);
+}
+
+#roomCode{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing:.08em;
+}
+
+/* Role buttons row */
+button[data-role]{
+  appearance:none;
+  border: 1px solid rgba(20,20,20,.20);
+  background: rgba(255,255,255,.55);
+  color: rgba(20,20,20,.88);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 900;
+  letter-spacing:.08em;
+  text-transform: uppercase;
+  cursor:pointer;
+  transition: transform .05s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  margin-right: 10px;
+  margin-top: 6px;
+}
+
+button[data-role]:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.14);
+  border-color: rgba(20,20,20,.30);
+}
+
+button[data-role].selected{
+  background: rgba(20,20,20,.92);
+  color: rgba(255,255,255,.92);
+  border-color: rgba(20,20,20,.70);
+  box-shadow: 0 14px 26px rgba(0,0,0,.18);
+}
+
+/* Team select accent */
+#team{
+  margin-top: 6px;
+}
+#team option[value="red"]{ color: var(--red); }
+#team option[value="blue"]{ color: var(--blue); }
+
+/* Primary / Secondary buttons */
+#joinBtn,
+#reconnectBtn,
+#submitClue,
+#endGuessBtn{
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: none;
+  cursor:pointer;
+  font-weight: 900;
+  letter-spacing:.10em;
+  text-transform: uppercase;
+  box-shadow: 0 16px 30px rgba(0,0,0,.20);
+}
+
+#joinBtn{
+  background: linear-gradient(90deg, rgba(196,61,61,.95), rgba(47,111,214,.92));
+  color: rgba(255,255,255,.95);
+}
+
+#joinBtn:hover{ filter: brightness(1.03); }
+#joinBtn:active{ transform: translateY(1px); }
+
+#reconnectBtn{
+  background: rgba(20,20,20,.82);
+  color: rgba(255,255,255,.92);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+#reconnectBtn:hover{
+  background: rgba(20,20,20,.92);
+}
+
+/* Output / error text */
+#output{
+  margin: 14px 2px 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(20,20,20,.06);
+  border: 1px dashed rgba(20,20,20,.18);
+  color: rgba(20,20,20,.78);
+  font-weight: 650;
+  min-height: 44px;
+}
+
+/* =========================
+   Game screen base styling
+   (kept simple; optional)
+   ========================= */
+
+#lobby-screen,
+#guesser-screen,
+#clue-screen{
+  width: min(980px, 92vw);
+  margin: 0 auto 42px;
+  padding: 18px 16px;
+}
+
+#lobby-screen h2,
+#guesser-screen h2{
+  margin: 6px 0 12px;
+  letter-spacing:.18em;
+  text-transform: uppercase;
+}
+
+.turn-status{
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+/* Board grid + cards (Codenames feel) */
+.board-grid{
+  display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
   margin-top: 12px;
 }
 
-.board-grid .card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 6px 4px;
-  background: #f5f5f5;
-  box-sizing: border-box;
+@media (max-width: 680px){
+  .board-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-.card-word {
-  text-align: center;
-  margin-bottom: 4px;
+.card{
+  position:relative;
+  border-radius: 16px;
+  padding: 12px;
+  min-height: 74px;
+  background: linear-gradient(180deg, #fbf6e7, #efe1c3);
+  color: #1a1a1a;
+  border: 1px solid rgba(0,0,0,.12);
+  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  user-select:none;
 }
 
-.card-guess-btn {
+.card-word{
+  font-weight: 900;
+  letter-spacing:.06em;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.card-guess-btn{
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.16);
+  background: rgba(255,255,255,.62);
+  font-weight: 900;
+  letter-spacing:.08em;
+  text-transform: uppercase;
+  cursor:pointer;
+  padding: 8px 10px;
+}
+
+.card-guess-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.card.highlighted{
+  outline: 4px solid rgba(47,111,214,.35);
+  box-shadow: 0 0 0 6px rgba(47,111,214,.18), 0 16px 32px rgba(0,0,0,.22);
+}
+
+/* Revealed / removed cards */
+.card-empty{
+  background: rgba(255,255,255,.06);
+  border: 1px dashed rgba(255,255,255,.20);
+  box-shadow: none;
+  min-height: 74px;
+}
+
+/* Clue master colors */
+.clue-card{ font-weight: 900; text-transform: uppercase; }
+.card-red{ background: linear-gradient(180deg, rgba(196,61,61,.92), rgba(196,61,61,.70)); color: #fff; }
+.card-blue{ background: linear-gradient(180deg, rgba(47,111,214,.92), rgba(47,111,214,.70)); color: #fff; }
+.card-bomb{ background: linear-gradient(180deg, rgba(20,20,20,.92), rgba(20,20,20,.72)); color: #fff; }
+.card-neutral{ background: linear-gradient(180deg, #e6dcc4, #d6c7a6); color: #1a1a1a; }
+
+/* Hide board when not your turn */
+.board-hidden{
+  opacity: .25;
+  filter: blur(1px);
+  pointer-events:none;
+}
+
+
+/* =========================
+   Prettier Lobby + Clue UI
+   ========================= */
+
+/* --- Clue screen container polish --- */
+#clue-screen{
+  width: min(980px, 92vw);
+  margin: 0 auto 42px;
+}
+
+#clue-screen > label:first-of-type{
+  display:block;
+  margin: 8px 0 12px;
+  font-weight: 900;
+  letter-spacing:.18em;
+  text-transform: uppercase;
+  opacity: .92;
+}
+
+/* Clue controls bar */
+.clue-controls{
+  display:flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+
+  padding: 14px 14px;
+  border-radius: 18px;
+
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 16px 30px rgba(0,0,0,.18);
+  backdrop-filter: blur(8px);
+
+  margin: 12px 0 16px;
+}
+
+.clue-controls .field{
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.clue-controls .field.small{
+  flex: 0 0 160px;
+  min-width: 140px;
+}
+
+.clue-controls label{
+  display:block;
+  margin: 0 0 8px;
+  font-weight: 900;
+  letter-spacing:.10em;
+  text-transform: uppercase;
   font-size: 12px;
-  padding: 2px 6px;
+  opacity: .85;
 }
 
-.card.highlighted {
-  outline: 2px solid #000;
-  background: #e0e0ff;
+#clueWord,
+#clueNumber{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(10,14,22,.55);
+  color: rgba(255,255,255,.92);
+  outline: none;
+  font-size: 16px;
 }
 
-.turn-status {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin: 10px 0 16px;
+#clueWord:focus,
+#clueNumber:focus{
+  border-color: rgba(47,111,214,.35);
+  box-shadow: 0 0 0 4px rgba(47,111,214,.18);
 }
 
-.board-hidden {
-  display: none;
+.btn-clue{
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+
+  font-weight: 900;
+  letter-spacing:.10em;
+  text-transform: uppercase;
+
+  color: rgba(255,255,255,.95);
+  background: linear-gradient(90deg, rgba(47,111,214,.95), rgba(196,61,61,.92));
+  box-shadow: 0 16px 30px rgba(0,0,0,.20);
+  min-width: 190px;
 }
 
-.card-empty {
-  background-color: #f0f0f0;
-  border-style: dashed;
+.btn-clue:disabled{
+  opacity: .45;
+  cursor: not-allowed;
+  filter: grayscale(.2);
 }
 
-.clue-board .card {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 4px;
+/* =========================
+   Brighter + more RED background
+   ========================= */
+
+:root{
+  /* keep it brighter, but slightly warmer */
+  --bg0: #16203a;
+  --bg1: #24365a;
 }
 
-.board-grid .card.card-red {
-  background-color: #f57272;
+body{
+  background:
+    /* RED (dominant) */
+    radial-gradient(1100px 650px at 32% 18%, rgba(196,61,61,.34), transparent 60%),
+    radial-gradient(900px 520px at 70% 78%, rgba(196,61,61,.20), transparent 62%),
+
+    /* BLUE (supporting) */
+    radial-gradient(950px 600px at 82% 22%, rgba(47,111,214,.18), transparent 60%),
+
+    /* lift */
+    radial-gradient(1100px 800px at 50% 92%, rgba(255,255,255,.11), transparent 66%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
 }
 
-.board-grid .card.card-blue {
-  background-color: #6a8ee8;
+/* optional: keep grid subtle */
+body::before{
+  opacity: .26;
 }
 
-.board-grid .card.card-neutral {
-  background-color: #f5f1dc;
-}
-
-.board-grid .card.card-bomb {
-  background-color: #222;
-  color: #fff;
-}
-
-.end-guess-btn {
-  margin-bottom: 10px;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-}

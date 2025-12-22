@@ -214,7 +214,7 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
   });
 
   socket.on("submitClue", ({ room, clueWord, clueNumber }) => { // A listener for submiting a clue
-    if (!room || !clueWord || !clueNumber) { // If the room , the clue, or the number dont exist -> return
+    if (!room || !clueWord || clueNumber === undefined || clueNumber === null || clueNumber === "") { // If the room , the clue, or the number dont exist -> return
       socket.emit("joinError", "Missing clue data.");
       return;
     }
