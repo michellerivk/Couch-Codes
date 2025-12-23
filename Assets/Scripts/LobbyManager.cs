@@ -117,7 +117,7 @@ public class LobbyManager : MonoBehaviour
 
                 if (redTxt != null)
                 {
-                    redTxt.text = $"Player: {name} - Role: {fullRole}";
+                    redTxt.text = $"{name} : {fullRole}";
                 }
 
 
@@ -129,7 +129,7 @@ public class LobbyManager : MonoBehaviour
 
                 if (blueTxt != null)
                 {
-                    blueTxt.text = $"Player: {name} - Role: {fullRole}";
+                    blueTxt.text = $"{name} : {fullRole}";
                 }
 
                 break;

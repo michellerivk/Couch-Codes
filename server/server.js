@@ -36,10 +36,26 @@ console.log('Request for:', req.url); // Log what URL has been requested
       res.end(data); // Sends the contents of the css page to the browser if everything is ok
     });
   }
-  else if (req.url === '/favicon.ico') { // If the vlient is trying to access the little picture of the site send that it's ok
-    res.writeHead(204);
-    res.end();
+
+  else if (req.url === '/favicon.ico') { // The client is trying to access the little picture of the site
+    const iconPath = path.join(__dirname, 'public', 'favicon.ico');
+
+    fs.readFile(iconPath, (err, data) => {
+      if (err) {
+        console.error('Error reading favicon.ico:', err);
+        res.writeHead(404);
+        res.end();
+        return;
+      }
+
+      res.writeHead(200, {
+        'Content-Type': 'image/x-icon',
+        'Cache-Control': 'public, max-age=86400'
+      });
+      res.end(data);
+    });
   }
+
   else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not found');
