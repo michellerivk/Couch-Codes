@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -141,6 +142,13 @@ public class GameManager : MonoBehaviour
         WordRecord word = _wordData.words[randomIndex];
 
         string language = BuildLanguage(_boardLanguage, word);
+
+        
+        if (_boardLanguage == Language.Hebrew) 
+        {
+            language = ReverseForUnity(language);
+        }
+        
 
         string ownerString = owner switch
         {
@@ -572,5 +580,10 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log($"id={w.id}, en={w.en}, he={w.he}, ru={w.ru}, cs={w.cs}");
         }
+    }
+
+    private static string ReverseForUnity(string s)
+    {
+        return new string(s.Reverse().ToArray());
     }
 }

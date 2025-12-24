@@ -485,3 +485,14 @@ body::before{
   opacity: .26;
 }
 
+html, body{
+  height: auto;          /* don't lock to viewport height */
+  min-height: 100%;
+}
+
+body{
+  min-height: 100svh;    /* mobile-safe viewport height */
+  background-repeat: no-repeat;
+  background-attachment: fixed;  /* keeps it consistent while scrolling */
+  background-size: cover;         /* prevents “restart” seams */
+}
