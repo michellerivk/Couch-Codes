@@ -18,4 +18,15 @@ public class PlayerData
         public string room;
         public List<PlayersData> players;
     }
+
+    [Serializable]
+    public class JoinInfoData
+    {
+        public bool ok;
+        public string room;
+        public string ip;
+        public int port;
+        public string baseUrl;
+        public string error;
+    }
 }

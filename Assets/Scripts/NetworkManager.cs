@@ -94,6 +94,25 @@ public class NetworkManager : MonoBehaviour
             _lm.UpdateLobby(data.players);
         });
 
+        socket.OnUnityThread("joinInfo", response =>
+        {
+            JoinInfoData data = null;
+
+            data = response.GetValue<JoinInfoData>();
+            
+            if (data == null || !data.ok)
+            {
+                Debug.LogWarning("joinInfo failed: " + (data?.error ?? "unknown"));
+                return;
+            }
+
+            Debug.Log($"Host network info: {data.baseUrl} (room {data.room})");
+
+            // Display the IP
+            _lm.SetJoinAddress(data.ip, data.port, data.baseUrl);
+        });
+
+
         socket.OnUnityThread("newClue", response =>
         {
             NewClueData data = null;

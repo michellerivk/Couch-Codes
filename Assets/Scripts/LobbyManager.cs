@@ -18,6 +18,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private Transform _redTeam;
     [SerializeField] private Transform _blueTeam;
     [SerializeField] private TextMeshProUGUI _languageText;
+    [SerializeField] private TextMeshProUGUI _joinAddressText;
 
     public string roomCode { get; private set; }
 
@@ -175,6 +176,14 @@ public class LobbyManager : MonoBehaviour
             }
         }
     }
+
+    public void SetJoinAddress(string ip, int port, string baseUrl)
+    {
+        if (_joinAddressText == null) return;
+
+        _joinAddressText.text = $"Enter: {baseUrl}";
+    }
+
 
     public void CheckStartingConditions(string scene)
     {

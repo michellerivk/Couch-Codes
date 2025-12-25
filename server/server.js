@@ -2,29 +2,7 @@ const http = require('http'); // Loads node's built in HTTP module that lets us 
 const fs = require('fs');     // Loads the file system module that lets us read/write in files
 const path = require('path'); // Loads the path helper module that's used to build paths in a Cross-Platform-Save way
 const { Server } = require('socket.io'); // Loads the socket.io module, pulls out it's server class into a variable
-
-// Parameters for the DNS name
-const os = require("os");
-const mdns = require("multicast-dns");
-const qrcode = require("qrcode-terminal");
-
-// Helper function for the DNS name
-function getLanIPv4() {
-  const nets = os.networkInterfaces();
-
-  for (const addrs of Object.values(nets)) {
-    for (const net of addrs || []) {
-      const isV4 = net.family === "IPv4" || net.family === 4;
-      if (!isV4 || net.internal) continue;
-
-      if (typeof net.address === "string" && net.address.startsWith("192.168.")) {
-        return net.address;
-      }
-    }
-  }
-
-  return null; // none found
-}
+const os = require("os"); // For getting the IP later
 
 const server = http.createServer((req, res) => { // Creates a new HTTP server. req = incoming request, res = outgoing response
 console.log('Request for:', req.url); // Log what URL has been requested
@@ -150,6 +128,21 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
   console.log(`Socket ${socket.id} joined room ${roomCode} as a ${role} to the ${team} team, with the name ${name}`); // Log that the player joined
 
   socket.emit("joinSuccess", { room: roomCode, name, role, team }); // Tell the client the join was successful
+
+  if (role === "host") {
+    if (!LAN_IP) {
+      socket.emit("joinInfo", { ok: false, error: "noLanIp" });
+    } else {
+      const baseUrl = `http://${LAN_IP}:${PORT}`;
+      socket.emit("joinInfo", { // Send the IP to Unity
+        ok: true,
+        room: roomCode,
+        ip: LAN_IP,
+        port: PORT,
+        baseUrl
+      });
+    }
+  }
 
   const roomDataAfterJoin = rooms[roomCode]; // Data for reconnecting after a refresh
 
@@ -448,46 +441,29 @@ io.on("connection", (socket) => { // Listens to clients connecting. socket = the
 
 });
 
-const PORT = 80;
-const MDNS_NAME = "couchcodes.local";
+// Helper function for getting the IP
+function getLanIPv4() {
+  const nets = os.networkInterfaces();
+
+  for (const addrs of Object.values(nets)) {
+    for (const net of addrs || []) {
+      const isV4 = net.family === "IPv4" || net.family === 4;
+      if (!isV4 || net.internal) continue;
+
+      if (typeof net.address === "string" && net.address.startsWith("192.168.")) {
+        return net.address;
+      }
+    }
+  }
+
+  return null; // none found
+}
+
+const PORT = 3000;
+let LAN_IP = null;
 
 server.listen(PORT, "0.0.0.0", () => {
-  const ip = getLanIPv4(); // Get the IP of the
-
-  console.log(`Server listening on http://localhost:${PORT}`);
-
-  if (ip) {
-    const urlByIp = `http://${ip}:${PORT}`;
-    const urlByMdns = `http://${MDNS_NAME}:${PORT}`;
-
-    console.log(`Join (recommended): ${urlByIp}`);
-    console.log(`Join (mDNS name):   ${urlByMdns}`);
-
-    console.log("\nScan to join:");
-    qrcode.generate(urlByIp, { small: true });
-
-    const mdnsServer = mdns();
-
-    mdnsServer.on("query", (query) => {
-      const questions = query.questions || [];
-      for (const q of questions) {
-        if (q.name === MDNS_NAME && q.type === "A") {
-          mdnsServer.respond({
-            answers: [{ name: MDNS_NAME, type: "A", ttl: 120, data: ip }],
-          });
-        }
-      }
-    });
-
-    const shutdown = () => {
-      try { mdnsServer.destroy(); } catch {}
-      process.exit(0);
-    };
-    process.on("SIGINT", shutdown);
-    process.on("SIGTERM", shutdown);
-  } else {
-    console.log("No LAN IPv4 address found. (Are you connected to Wi-Fi/Ethernet?)");
-  }
+  LAN_IP = getLanIPv4();
 });
 
 
