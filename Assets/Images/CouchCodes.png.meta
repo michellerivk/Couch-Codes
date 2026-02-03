@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f2f1753eab11d374ea09380d30a95e8d
+guid: e1bf5eb2bbb338b438616510c235ea18
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9095227709294607931
-    second: 20251221_2359_Cozy Cartoon Couch_simple_compose_01kd1esfwrehk8z6ghv3scvnxa_0
+      213: 5863628641171653924
+    second: CouchCodes_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 20251221_2359_Cozy Cartoon Couch_simple_compose_01kd1esfwrehk8z6ghv3scvnxa_0
+      name: CouchCodes_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1536
-        height: 1024
+        width: 1920
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b3e7bcbb96db83e70800000000000000
-      internalID: 9095227709294607931
+      spriteID: 425c7dbae2bcf5150800000000000000
+      internalID: 5863628641171653924
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      20251221_2359_Cozy Cartoon Couch_simple_compose_01kd1esfwrehk8z6ghv3scvnxa_0: 9095227709294607931
+      CouchCodes_0: 5863628641171653924
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
