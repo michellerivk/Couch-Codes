@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b21c9bd7c0b2e75408be7118c8538db7
+guid: 7ef37ea2527261046ae9497607d3763e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -82941345413362889
-    second: 20251203_2228_Cozy Sunlit Living Room_remix_01kbjy9e8qfahaggzpx5c7n6hn_0
+      213: -8538006986483692926
+    second: Screenshot 2026-02-03 223555_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 20251203_2228_Cozy Sunlit Living Room_remix_01kbjy9e8qfahaggzpx5c7n6hn_0
+      name: Screenshot 2026-02-03 223555_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1536
-        height: 1024
+        width: 1719
+        height: 896
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 73b8179294559def0800000000000000
-      internalID: -82941345413362889
+      spriteID: 28a06d0d1e7e28980800000000000000
+      internalID: -8538006986483692926
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      20251203_2228_Cozy Sunlit Living Room_remix_01kbjy9e8qfahaggzpx5c7n6hn_0: -82941345413362889
+      Screenshot 2026-02-03 223555_0: -8538006986483692926
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

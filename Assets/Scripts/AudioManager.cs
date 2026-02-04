@@ -2,15 +2,59 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static AudioManager instance;
+    [SerializeField] private AudioSource _titleMusic;
+    [SerializeField] private AudioSource[] _sfx;
+    [SerializeField] private AudioSource[] _bg; // Ideally built for more than 1 Background tune
+    public void Awake()
     {
-        
+        // Singleton data structure
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+            Destroy(gameObject);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void PlayTitle() // Play main menu music
     {
-        
+        _titleMusic.Play();
+    }
+
+    public void LowerTitle() // Lower the title music (in the settings for example)
+    {
+        _titleMusic.volume = 0.2f;
+    }
+
+    public void IncreaseTitle() // Increase the title music (after closing the settings for example)
+    {
+        _titleMusic.volume = 0.6f;
+    }
+
+    public void StopTitle() // Stop the title music (after hitting play)
+    {
+        //_titleMusic.Stop();
+        _titleMusic.volume = 0f; // Because stop doesnt work for some reason
+    }
+
+    public void PlaySFX(int sfxToPlay) // Dragging an item, item dropping, cracks on the floor etc...
+    {
+        _sfx[sfxToPlay].Stop(); // If a sound effect is already playing, stop it
+        _sfx[sfxToPlay].Play();
+    }
+
+    public void PlaySFXPitchAdjusted(int sfxToPlay) // Changing the pitch on a sound that you hear over and over
+    {
+        _sfx[sfxToPlay].pitch = Random.Range(0.8f, 1.2f);
+
+        PlaySFX(sfxToPlay);
+    }
+
+    public void PlayBG(int bgToPlay) // Play background music after hitting start
+    {
+        _bg[bgToPlay].Stop();
+        _bg[bgToPlay].Play();
     }
 }

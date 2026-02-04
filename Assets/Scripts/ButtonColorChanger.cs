@@ -13,12 +13,13 @@ public class ButtonColorChanger : MonoBehaviour, IPointerEnterHandler, IPointerE
             _lobbyText.color = newColor;
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             _lobbyText.transform.localScale = Vector3.one * 1.05f;
+            AudioManager.instance.PlaySFXPitchAdjusted(1);
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (ColorUtility.TryParseHtmlString("#BD5115", out Color newColor))
+        if (ColorUtility.TryParseHtmlString("#D3803E", out Color newColor))
         {
             _lobbyText.color = newColor;
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
