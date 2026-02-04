@@ -186,7 +186,7 @@ public class LobbyManager : MonoBehaviour
 
     public void CheckStartingConditions(string scene)
     {
-        // Disabled for testing, but need to enable before a build!!!
+        // TODO: Disabled for testing, but need to enable before a build!!!
         /*
         if (_redPlayers < 2 || _bluePlayers < 2 || _codeMasters < 2)
         {

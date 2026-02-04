@@ -566,22 +566,6 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
-
-    // Prints the words to the console - for debugging purposes
-    private void PrintWords()
-    {
-        if (_wordData == null || _wordData.words == null)
-        {
-            Debug.Log("No word data loaded.");
-            return;
-        }
-
-        foreach (var w in _wordData.words)
-        {
-            Debug.Log($"id={w.id}, en={w.en}, he={w.he}, ru={w.ru}, cs={w.cs}");
-        }
-    }
-
     private static string ReverseForUnity(string s)
     {
         return new string(s.Reverse().ToArray());
