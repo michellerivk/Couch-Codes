@@ -97,8 +97,8 @@ This project was created to:
 ---
 
 ## 📷 Screenshots
-
-*(Add screenshots or GIFs here)*
+- Main Menu
+<img width="994" height="507" alt="Main Menu" src="https://github.com/user-attachments/assets/e9f0bc58-65ee-4784-ade7-ea78a56148e0" />
 - Lobby screen
 - Clue Master board
 - Guesser phone UI
@@ -107,7 +107,6 @@ This project was created to:
 ---
 
 ## ⚠️ Known Limitations
-
 - Designed for **LAN play only**
 - Single host per room
 - The room closes after the host leaves the game
