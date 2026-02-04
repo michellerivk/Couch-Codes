@@ -17,7 +17,7 @@ public class NetworkManager : MonoBehaviour
     private string _roomCode;
     private bool _didShutdown = false;
 
-    private void Start() // I want to get the code from the LobbyManger.Awake() first
+    private async void Start() // I want to get the code from the LobbyManger.Awake() first
     {
         // Using the singleton Data Structure to keep the network running between scenes
         if (Instance != null && Instance != this)
@@ -37,13 +37,16 @@ public class NetworkManager : MonoBehaviour
 
         _roomCode = _lm.roomCode;
 
+        // Ensure Node is up before socket connects
+        await NodeServerRunner.Instance.EnsureServerRunning();
+
         HandleSocketConnection();
     }
 
     // Connects to the Node using sockets
     public void HandleSocketConnection()
     {
-        var uri = new Uri("http://localhost:3000"); // Where the node server is
+        var uri = new Uri($"http://127.0.0.1:{NodeServerRunner.Instance.Port}"); // Where the node server is
 
         socket = new SocketIOUnity(uri, new SocketIOOptions // Create a socket
         {

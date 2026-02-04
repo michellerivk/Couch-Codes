@@ -9,7 +9,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static PlayerData;
-using static Unity.VisualScripting.Icons;
 
 public class LobbyManager : MonoBehaviour
 {

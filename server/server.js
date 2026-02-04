@@ -7,9 +7,15 @@ const os = require("os"); // For getting the IP later
 const server = http.createServer((req, res) => { // Creates a new HTTP server. req = incoming request, res = outgoing response
 console.log('Request for:', req.url); // Log what URL has been requested
 
-  if (req.url === '/' || req.url === '/index.html') { // If the browser request '/' or '/index', send the index.html file
-    const filePath = path.join(__dirname, 'public', 'index.html'); //__dirname = the folder where the server.js file lives.
-                                                                   // Creates the full path of the index.html file 
+if (req.url === "/health") { // For unity's amwait function
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("ok");
+  return;
+}
+
+if (req.url === '/' || req.url === '/index.html') { // If the browser request '/' or '/index', send the index.html file
+  const filePath = path.join(__dirname, 'public', 'index.html'); //__dirname = the folder where the server.js file lives.
+                                                                  // Creates the full path of the index.html file 
 
     fs.readFile(filePath, (err, data) => { // The err is an internal node catch.
       if (err) 
@@ -459,7 +465,12 @@ function getLanIPv4() {
   return null; // none found
 }
 
-const PORT = 3000;
+function getArg(name) {
+  const i = process.argv.indexOf(name);
+  return i !== -1 ? process.argv[i + 1] : null;
+}
+
+const PORT = parseInt(getArg("--port") || process.env.PORT || "3000", 10);
 let LAN_IP = null;
 
 server.listen(PORT, "0.0.0.0", () => {
