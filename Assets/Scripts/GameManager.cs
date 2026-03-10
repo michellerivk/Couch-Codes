@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,6 +38,12 @@ public class GameManager : MonoBehaviour
     [Header("End Game")]
     [SerializeField] GameObject _gameOverObject;
     [SerializeField] private TextMeshProUGUI _endScreenText;
+
+    [Header("Card Animation")]
+    [SerializeField] private float _cardDealDelay = 0.04f;
+    [SerializeField] private float _cardAppearDuration = 0.18f;
+
+    private Coroutine _boardIntroRoutine;
 
     private List<CardStateInfo> _boardLayoutForClients = new List<CardStateInfo>(); // Info for the HTML board
 
@@ -83,7 +90,8 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
-        NetworkManager.Instance.AfterStatusChange();
+        if (NetworkManager.Instance != null)
+            NetworkManager.Instance.AfterStatusChange();
     }
 
     // Loads the words from the JSON file into an array of strings
@@ -106,6 +114,8 @@ public class GameManager : MonoBehaviour
         List<string> bombCards = new List<string>();
         List<string> neutralCards = new List<string>();
 
+        List<Card> createdCards = new List<Card>(); // For the animation
+
         _boardLayoutForClients.Clear();
 
         for (int i = 0; i < 25; i++)
@@ -125,6 +135,10 @@ public class GameManager : MonoBehaviour
             {
                 addedCard = RandomizeOwner(newCard, randomIndex, i, blueCards, redCards, bombCards, neutralCards);
             }
+
+            // For the animation
+            newCard.PrepareForSpawn();
+            createdCards.Add(newCard);
         }
 
         _redTeamCards = redCards.Count;
@@ -132,6 +146,26 @@ public class GameManager : MonoBehaviour
 
         if (NetworkManager.Instance != null)
             NetworkManager.Instance.SendBoardState(_boardLayoutForClients);
+
+        if (_boardIntroRoutine != null)
+            StopCoroutine(_boardIntroRoutine);
+
+        _boardIntroRoutine = StartCoroutine(PlayBoardIntro(createdCards));
+    }
+
+    // Animation coroutine
+    private IEnumerator PlayBoardIntro(List<Card> cards)
+    {
+        foreach (Card card in cards)
+        {
+            if (card == null)
+                continue;
+
+            card.PlaySpawnAnimation(_cardAppearDuration);
+            yield return new WaitForSeconds(_cardDealDelay);
+        }
+
+        _boardIntroRoutine = null;
     }
 
     // Randomizes the type of the card (blue, red, bomb, neutral)
@@ -525,6 +559,12 @@ public class GameManager : MonoBehaviour
         // Clear the board
         if (_boardParent != null)
         {
+            if (_boardIntroRoutine != null)
+            {
+                StopCoroutine(_boardIntroRoutine);
+                _boardIntroRoutine = null;
+            }
+
             foreach (Transform child in _boardParent)
             {
                 Destroy(child.gameObject);

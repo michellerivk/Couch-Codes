@@ -1179,6 +1179,8 @@ MonoBehaviour:
   _sfx:
   - {fileID: 1086173045}
   - {fileID: 1362345812}
+  - {fileID: 599124045}
+  - {fileID: 244735631}
   _bg: []
 --- !u!1 &1086173044
 GameObject:
