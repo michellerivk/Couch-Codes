@@ -130,7 +130,8 @@ public class GameManager : MonoBehaviour
         _redTeamCards = redCards.Count;
         _blueTeamCards = blueCards.Count;
 
-        NetworkManager.Instance.SendBoardState(_boardLayoutForClients);
+        if (NetworkManager.Instance != null)
+            NetworkManager.Instance.SendBoardState(_boardLayoutForClients);
     }
 
     // Randomizes the type of the card (blue, red, bomb, neutral)

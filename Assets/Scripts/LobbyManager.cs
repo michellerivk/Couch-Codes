@@ -218,6 +218,10 @@ public class LobbyManager : MonoBehaviour
         }
 
         canSwitchScene = true;
+
+        if (AudioManager.instance != null)
+            AudioManager.instance.PlaySFX(0);
+
         SceneSwitcher.SwitchScene(scene);
     }
 

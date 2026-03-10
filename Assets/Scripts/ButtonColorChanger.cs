@@ -13,7 +13,8 @@ public class ButtonColorChanger : MonoBehaviour, IPointerEnterHandler, IPointerE
             _lobbyText.color = newColor;
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             _lobbyText.transform.localScale = Vector3.one * 1.05f;
-            AudioManager.instance.PlaySFXPitchAdjusted(1);
+            if (AudioManager.instance != null)
+                AudioManager.instance.PlaySFXPitchAdjusted(1);
         }
     }
 

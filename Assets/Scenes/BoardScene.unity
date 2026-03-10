@@ -151,7 +151,7 @@ MonoBehaviour:
   _cardPrefab: {fileID: 7178510915811398810, guid: 4afc65f9e44a73745a64a4f6cc42621e, type: 3}
   _boardParent: {fileID: 1368747885}
   _boardLanguage: 0
-  _clueObject: {fileID: 0}
+  _clueObject: {fileID: 1014115260}
   _clueText: {fileID: 1014115262}
   _clueNumber: {fileID: 2030873655}
   _redCards: {fileID: 994564075}
@@ -1624,8 +1624,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 64
-  m_fontSizeBase: 64
+  m_fontSize: 56
+  m_fontSizeBase: 56
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1879,10 +1879,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 501007083}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.17435822}
-  m_AnchorMax: {x: 0.5088941, y: 1}
-  m_AnchoredPosition: {x: -4.2543, y: 0}
-  m_SizeDelta: {x: 91.4915, y: -0.000061035}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 4.2457, y: 49}
+  m_SizeDelta: {x: 108.4915, y: 765}
   m_Pivot: {x: 0.5, y: 0.50000006}
 --- !u!114 &1368747886
 MonoBehaviour:
