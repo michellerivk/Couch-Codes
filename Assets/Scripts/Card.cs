@@ -45,6 +45,10 @@ public class Card : MonoBehaviour
 
     public void PlaySpawnAnimation(float duration)
     {
+
+        if (AudioManager.instance != null)
+            AudioManager.instance.PlaySFXPitchAdjusted(2);
+
         if (_spawnRoutine != null)
             StopCoroutine(_spawnRoutine);
 
@@ -72,9 +76,6 @@ public class Card : MonoBehaviour
                 _canvasGroup.alpha = Mathf.Lerp(0f, 1f, eased);
 
             yield return null;
-
-            if (AudioManager.instance != null)
-                AudioManager.instance.PlaySFXPitchAdjusted(2);
         }
 
         if (_rectTransform != null)
