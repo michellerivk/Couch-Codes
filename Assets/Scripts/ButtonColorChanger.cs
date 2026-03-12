@@ -6,9 +6,11 @@ using UnityEngine.UI;
 public class ButtonColorChanger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private TextMeshProUGUI _lobbyText ;
+    [SerializeField] private Color newColor;
+    [SerializeField] private Color oldColor ;
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (ColorUtility.TryParseHtmlString("#DB6A2B", out Color newColor))
+        if (newColor != null)//ColorUtility.TryParseHtmlString("#DB6A2B", out Color newColor))
         {
             _lobbyText.color = newColor;
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
@@ -20,9 +22,9 @@ public class ButtonColorChanger : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (ColorUtility.TryParseHtmlString("#D3803E", out Color newColor))
+        if (oldColor != null)//ColorUtility.TryParseHtmlString("#D3803E", out Color newColor))
         {
-            _lobbyText.color = newColor;
+            _lobbyText.color = oldColor;
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             _lobbyText.transform.localScale = Vector3.one;
         }

@@ -16,6 +16,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject _playerStats;
     [SerializeField] private Transform _redTeam;
     [SerializeField] private Transform _blueTeam;
+    [SerializeField] private TMP_FontAsset _font;
     [SerializeField] private TextMeshProUGUI _languageText;
     [SerializeField] private TextMeshProUGUI _joinAddressText;
 
@@ -41,19 +42,19 @@ public class LobbyManager : MonoBehaviour
         switch (_languageCounter)
         {
             case 0:
-                _languageText.text += "Language: English";
+                _languageText.text += "Language: English" + " \u2192";
                 return;
 
             case 1:
-                _languageText.text += "Language: Hebrew";
+                _languageText.text += "Language: Hebrew" + " \u2192";
                 return;
 
             case 2:
-                _languageText.text += "Language: Russian";
+                _languageText.text += "Language: Russian" + " \u2192";
                 return;
 
             case 3:
-                _languageText.text += "Language: Czech";
+                _languageText.text += "Language: Czech" + " \u2192";
                 return;
         }
     }
@@ -237,22 +238,22 @@ public class LobbyManager : MonoBehaviour
         switch(_languageCounter)
         {
             case 0:
-                _languageText.text += "English";
+                _languageText.text += "English" + " \u2192";
                 SaveLanguage(0);
                 return;
 
             case 1:
-                _languageText.text += "Hebrew";
+                _languageText.text += "Hebrew" + " \u2192";
                 SaveLanguage(1);
                 return;
 
             case 2:
-                _languageText.text += "Russian";
+                _languageText.text += "Russian" + " \u2192";
                 SaveLanguage(2);
                 return;
 
             case 3:
-                _languageText.text += "Czech";
+                _languageText.text += "Czech" + " \u2192";
                 SaveLanguage(3);
                 return;
         }
