@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8165212}
   - component: {fileID: 8165213}
+  - component: {fileID: 8165214}
   m_Layer: 0
   m_Name: Lobby Manager
   m_TagString: Untagged
@@ -167,9 +168,29 @@ MonoBehaviour:
   _playerStats: {fileID: 3370693800884892480, guid: 50b1d6c7101af3f46968555e89283f7b, type: 3}
   _redTeam: {fileID: 2107520395}
   _blueTeam: {fileID: 2090018760}
-  _font: {fileID: 0}
   _languageText: {fileID: 1996236162}
   _joinAddressText: {fileID: 398189837}
+  _ipTyper: {fileID: 8165214}
+--- !u!114 &8165214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8165211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 182b4c45db017104bb16cfc98e4a2ea2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LobbyIPTyper
+  displayText: {fileID: 398189837}
+  waitingText: Waiting for IP...
+  typeDelay: 0.05
+  eraseDelay: 0.03
+  waitAfterTyped: 0.8
+  waitAfterErased: 0.25
+  cursorBlinkDelay: 0.45
+  useUnscaledTime: 1
 --- !u!1 &174914171
 GameObject:
   m_ObjectHideFlags: 0
@@ -1098,7 +1119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 26d4850c9553123459cb2e82f79eae84, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}

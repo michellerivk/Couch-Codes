@@ -168,7 +168,7 @@ Shader "UI/CozyLampPulseUI"
                 // Warm halo on surrounding wall/floor
                 col.rgb += _GlowTint.rgb * glow;
 
-                // Brighten base image insite the cone
+                // Brighten base image inside the cone
                 col.rgb *= 1.0 + coneMask * 0.06 * pulse;
 
                 return col;

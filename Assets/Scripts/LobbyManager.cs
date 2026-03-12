@@ -12,13 +12,20 @@ using static PlayerData;
 
 public class LobbyManager : MonoBehaviour
 {
+    [Header("Room Code")]
     [SerializeField] private TextMeshProUGUI _codeText;
+
+    [Header("Teams")]
     [SerializeField] private GameObject _playerStats;
     [SerializeField] private Transform _redTeam;
     [SerializeField] private Transform _blueTeam;
-    [SerializeField] private TMP_FontAsset _font;
+
+    [Header("Language")]
     [SerializeField] private TextMeshProUGUI _languageText;
+
+    [Header("Laptop IP")]
     [SerializeField] private TextMeshProUGUI _joinAddressText;
+    [SerializeField] private LobbyIPTyper _ipTyper;
 
     public string roomCode { get; private set; }
 
@@ -179,9 +186,18 @@ public class LobbyManager : MonoBehaviour
 
     public void SetJoinAddress(string ip, int port, string baseUrl)
     {
-        if (_joinAddressText == null) return;
+        string finalText = $"Enter:\n{baseUrl}";
 
-        _joinAddressText.text = $"Enter: {baseUrl}";
+        if (_ipTyper != null)
+        {
+            _ipTyper.SetFullText(finalText);
+            return;
+        }
+
+        if (_joinAddressText != null)
+        {
+            _joinAddressText.text = finalText;
+        }
     }
 
 
