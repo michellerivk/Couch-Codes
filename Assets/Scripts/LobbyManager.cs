@@ -109,11 +109,11 @@ public class LobbyManager : MonoBehaviour
         switch (role)
         {
             case "clue":
-                fullRole = "Clue Master";
+                fullRole = "[CM]";
                 break;
 
             case "guesser":
-                fullRole = "Guesser";
+                fullRole = "[G]";
                 break;
         }
 
@@ -125,7 +125,7 @@ public class LobbyManager : MonoBehaviour
 
                 if (redTxt != null)
                 {
-                    redTxt.text = $"{name} : {fullRole}";
+                    redTxt.text = $"{name} {fullRole}";
                 }
 
 
