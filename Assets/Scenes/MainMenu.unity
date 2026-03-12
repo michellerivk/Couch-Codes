@@ -402,6 +402,7 @@ GameObject:
   - component: {fileID: 158869938}
   - component: {fileID: 158869940}
   - component: {fileID: 158869942}
+  - component: {fileID: 158869943}
   m_Layer: 5
   m_Name: Couch Image
   m_TagString: Untagged
@@ -456,6 +457,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.AspectRatioFitter
   m_AspectMode: 4
   m_AspectRatio: 1.9488702
+--- !u!114 &158869943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 158869937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b952521cf136a340be617516bfe0ca1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIMenuDrift
+  target: {fileID: 158869938}
+  driftAmount: {x: 4, y: 3}
+  driftSpeed: 0.05
+  rotationAmount: 0.3
+  rotationSpeed: 0.05
+  useUnscaledTime: 1
 --- !u!1 &159846805
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,7 +569,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 663308e1e70b7224483f66b6176ffb8b, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1963,7 +1982,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0.000038146973, y: -1.9999771}
+  m_AnchoredPosition: {x: 0.000030517578, y: -1.9999619}
   m_SizeDelta: {x: 229.66998, y: 67.516}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1527109704
