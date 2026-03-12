@@ -39,7 +39,7 @@ Material:
     - _ScanlineSpeed: 0.4
     - _ScanlineStrength: 0.025
     - _ScreenRotation: -4.8
-    - _ScreenSoftness: 0.0229
+    - _ScreenSoftness: 0.032
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ScreenCenter: {r: 0.14, g: 0.838, b: 0, a: 0}
