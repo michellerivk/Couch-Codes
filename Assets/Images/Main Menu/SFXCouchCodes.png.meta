@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: e1bf5eb2bbb338b438616510c235ea18
+guid: c8c1bb210c156b14f8412d83245b677c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5863628641171653924
-    second: CouchCodes_0
+      213: 4728366948976900885
+    second: SFXCouchCodes_0
+  - first:
+      213: 6526615528933207460
+    second: SFXCouchCodes_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +103,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CouchCodes_0
+      name: SFXCouchCodes_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1920
-        height: 1080
+        width: 12
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 425c7dbae2bcf5150800000000000000
-      internalID: 5863628641171653924
+      spriteID: 51b377920b88e9140800000000000000
+      internalID: 4728366948976900885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SFXCouchCodes_1
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 0
+        width: 5
+        height: 14
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4adac9b7e32339a50800000000000000
+      internalID: 6526615528933207460
       vertices: []
       indices: 
       edges: []
@@ -125,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d20b214acea784b44ba2647ca0f7c78e
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +160,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CouchCodes_0: 5863628641171653924
+      SFXCouchCodes_0: 4728366948976900885
+      SFXCouchCodes_1: 6526615528933207460
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
