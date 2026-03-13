@@ -246,7 +246,7 @@ public class LobbyManager : MonoBehaviour
     {
         _languageText.text = "Language: ";
 
-        if (_languageCounter < 3)
+        if (_languageCounter < 2) // if (_languageCounter < 3)
             _languageCounter++;
         else
             _languageCounter = 0;
@@ -258,17 +258,27 @@ public class LobbyManager : MonoBehaviour
                 SaveLanguage(0);
                 return;
 
-            case 1:
-                _languageText.text += "Hebrew" + " \u2192";
-                SaveLanguage(1);
-                return;
+            //case 1:
+            //    _languageText.text += "Hebrew" + " \u2192";
+            //    SaveLanguage(1);
+            //    return;
 
-            case 2:
+            //case 2:
+            //    _languageText.text += "Russian" + " \u2192";
+            //    SaveLanguage(2);
+            //    return;
+
+            //case 3:
+            //    _languageText.text += "Czech" + " \u2192";
+            //    SaveLanguage(3);
+            //    return;
+
+            case 1:
                 _languageText.text += "Russian" + " \u2192";
                 SaveLanguage(2);
                 return;
 
-            case 3:
+            case 2:
                 _languageText.text += "Czech" + " \u2192";
                 SaveLanguage(3);
                 return;
