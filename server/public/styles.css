@@ -1,498 +1,477 @@
-/* =========================
-   Couch Codes — Codenames dossier theme
-   ========================= */
-
 :root{
-  --bg0: #0b0f17;
-  --bg1: #0f1626;
-  --paper: #f3eddc;
-  --paper2:#efe5cb;
-  --ink: #141414;
-  --muted: #5a5a5a;
+  --bg-night: #4a362c;
+  --bg-dusk: #6a5244;
+  --bg-floor: #9a7a63;
+  --glow-gold: rgba(255, 204, 145, 0.28);
+  --glow-rose: rgba(214, 154, 126, 0.16);
+  --glow-blue: rgba(176, 130, 96, 0.16);
 
-  --red:  #c43d3d;
-  --blue: #2f6fd6;
+  --panel: rgba(255,255,255,0.10);
+  --panel-strong: rgba(255,255,255,0.14);
+  --panel-border: rgba(255,255,255,0.16);
 
-  --line: rgba(20,20,20,0.15);
-  --line2: rgba(255,255,255,0.08);
+  --card: #f5ecd7;
+  --card-2: #ebddbf;
+  --ink: #2a2230;
+  --ink-soft: rgba(42,34,48,0.72);
 
-  --shadow: 0 18px 55px rgba(0,0,0,.45);
-  --radius: 18px;
+  --red: #d05658;
+  --blue: #4e82e6;
+  --neutral: #d8ccb0;
+  --bomb: #2a2433;
+
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --shadow-lg: 0 28px 70px rgba(16, 12, 28, 0.32);
+  --shadow-md: 0 16px 34px rgba(16, 12, 28, 0.22);
+  --shadow-sm: 0 8px 18px rgba(16, 12, 28, 0.14);
+
+  --button-cream: #f5ecd8;
+  --button-cream-2: #e8d7b6;
+  --button-gold: #d2ab6a;
+  --button-honey: #c79252;
+  --button-caramel: #a56f45;
+  --button-brown: #6f4c37;
+  --button-brown-deep: #53382a;
+  --button-ink: #2f2119;
+  --button-shadow: 0 14px 28px rgba(74, 47, 28, 0.20);
 }
 
 *{ box-sizing:border-box; }
-html, body{ height:100%; }
+html, body{
+  min-height:100%;
+}
 
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  color: rgba(255,255,255,.92);
-
-  /* Dark “briefing room” background */
-  background:
-    radial-gradient(1200px 600px at 20% 10%, rgba(47,111,214,.18), transparent 55%),
-    radial-gradient(900px 500px at 85% 35%, rgba(196,61,61,.16), transparent 60%),
-    radial-gradient(900px 700px at 50% 90%, rgba(255,255,255,.06), transparent 62%),
-    linear-gradient(180deg, var(--bg0), var(--bg1));
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: rgba(255,255,255,0.95);
   overflow-x:hidden;
+  background:
+    radial-gradient(900px 520px at 8% 18%, var(--glow-gold), transparent 58%),
+    radial-gradient(820px 440px at 88% 16%, var(--glow-blue), transparent 56%),
+    radial-gradient(880px 540px at 55% 105%, rgba(255, 220, 176, 0.14), transparent 60%),
+    radial-gradient(700px 420px at 35% 8%, var(--glow-rose), transparent 52%),
+    linear-gradient(180deg, #4a362c 0%, var(--bg-night) 26%, var(--bg-dusk) 72%, var(--bg-floor) 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position:relative;
 }
 
-/* Subtle “grid” overlay */
-body::before{
+/* soft lamp glows + cozy vignette */
+body::before,
+body::after{
   content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
-  background:
-    linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
-  background-size: 54px 54px;
-  opacity:.45;
 }
 
-/* Header */
+body::before{
+  background:
+    radial-gradient(320px 320px at 10% 28%, rgba(255, 217, 163, 0.18), transparent 62%),
+    radial-gradient(360px 360px at 92% 36%, rgba(209, 154, 114, 0.12), transparent 64%),
+    radial-gradient(600px 180px at 50% 100%, rgba(72, 46, 28, 0.24), transparent 72%);
+  filter: blur(10px);
+}
+
+body::after{
+  background:
+    radial-gradient(circle at center, transparent 48%, rgba(34,24,18,0.16) 100%),
+    repeating-radial-gradient(circle at 20% 30%, rgba(255, 244, 230, 0.03) 0 1px, transparent 1px 18px);
+  opacity:0.55;
+  mix-blend-mode:screen;
+}
+
 h1{
-  margin: 34px 16px 18px;
+  margin: 34px 16px 20px;
   text-align:center;
-  letter-spacing:.22em;
+  letter-spacing:.24em;
   text-transform:uppercase;
-  font-weight:800;
-  font-size: clamp(28px, 4vw, 44px);
-  position:relative;
+  font-weight:900;
+  font-size: clamp(30px, 4.4vw, 46px);
+  text-shadow: 0 6px 24px rgba(15,10,22,0.25);
 }
 
 h1::after{
-  content:"SECURE ACCESS";
   display:block;
   margin-top:10px;
-  letter-spacing:.35em;
-  font-size: 12px;
+  letter-spacing:.34em;
+  font-size:12px;
   font-weight:700;
-  opacity:.55;
+  opacity:.72;
 }
 
-/* Hide non-join screens by default (JS will show them when needed) */
 #lobby-screen,
 #guesser-screen,
 #clue-screen{
   display:none;
 }
 
-/* ===========
-   Join Screen
-   =========== */
+#join-screen,
+#lobby-screen,
+#guesser-screen,
+#clue-screen{
+  width:min(1020px, 92vw);
+  margin:0 auto 42px;
+}
 
 #join-screen{
-  width: min(560px, 92vw);
-  margin: 0 auto 42px;
-  padding: 26px 22px 20px;
-
-  color: var(--ink);
-  background:
-    linear-gradient(180deg, var(--paper), var(--paper2));
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  width:min(560px, 92vw);
+  padding: 28px 22px 20px;
   position:relative;
   overflow:hidden;
-  border: 1px solid rgba(0,0,0,.08);
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(255,247,231,0.92), rgba(247,236,214,0.90));
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
 }
 
-/* “Dossier” top strip */
 #join-screen::before{
-  content:"CLASSIFIED";
+  content:"game lobby";
   position:absolute;
-  top: 14px;
-  right: -52px;
-  transform: rotate(18deg);
-  padding: 10px 64px;
-  background: rgba(20,20,20,.9);
-  color: rgba(255,255,255,.92);
-  font-weight: 900;
-  letter-spacing: .28em;
-  font-size: 11px;
-  text-transform: uppercase;
-  box-shadow: 0 10px 18px rgba(0,0,0,.25);
+  top:16px;
+  right:18px;
+  padding: 7px 12px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.54);
+  color: rgba(61,44,38,0.72);
+  border: 1px solid rgba(61,44,38,0.08);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:10px;
+  font-weight:900;
+  box-shadow: var(--shadow-sm);
 }
 
-/* faint stamp */
 #join-screen::after{
-  content:"COUCH CODES OPERATION";
+  content:"★ ✦ ★";
   position:absolute;
-  left: 16px;
-  top: 16px;
-  font-weight:800;
-  font-size: 12px;
-  letter-spacing: .18em;
-  opacity: .18;
-  transform: rotate(-2deg);
+  left:18px;
+  top:18px;
+  font-size:13px;
+  letter-spacing:.2em;
+  color: rgba(194,134,78,0.62);
 }
 
 #join-screen > div{
   margin-top: 14px;
 }
 
-/* Labels + inputs */
-#join-screen label{
+#join-screen label,
+#clue-screen label,
+.clue-controls label{
   display:block;
   margin: 14px 0 8px;
-  font-weight: 800;
+  font-weight:800;
   letter-spacing:.08em;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: rgba(20,20,20,.78);
+  text-transform:uppercase;
+  font-size:12px;
+}
+
+#join-screen label{
+  color: rgba(42,34,48,0.76);
+}
+
+#join-screen input,
+#join-screen select,
+#clueWord,
+#clueNumber{
+  width:100%;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(63,48,54,0.12);
+  outline:none;
+  font-size:16px;
+  transition: box-shadow .2s ease, transform .08s ease, border-color .2s ease;
 }
 
 #join-screen input,
 #join-screen select{
-  width: 100%;
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(20,20,20,.18);
-  background: rgba(255,255,255,.65);
+  background: rgba(255,255,255,0.72);
   color: var(--ink);
-  outline: none;
-  font-size: 16px;
-  box-shadow: 0 10px 20px rgba(0,0,0,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 8px 18px rgba(45,30,34,0.08);
 }
 
 #join-screen input:focus,
-#join-screen select:focus{
-  border-color: rgba(20,20,20,.35);
-  box-shadow: 0 0 0 4px rgba(47,111,214,.18), 0 10px 22px rgba(0,0,0,.10);
+#join-screen select:focus,
+#clueWord:focus,
+#clueNumber:focus{
+  border-color: rgba(199, 146, 82, 0.42);
+  box-shadow: 0 0 0 4px rgba(210, 171, 106, 0.18), 0 10px 20px rgba(26,19,33,0.10);
 }
 
 #roomCode{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing:.08em;
 }
 
-/* Role buttons row */
-button[data-role]{
+button[data-role],
+.card-guess-btn,
+#joinBtn,
+#submitClue,
+#endGuessBtn{
   appearance:none;
-  border: 1px solid rgba(20,20,20,.20);
-  background: rgba(255,255,255,.55);
-  color: rgba(20,20,20,.88);
-  border-radius: 999px;
-  padding: 10px 14px;
-  font-weight: 900;
-  letter-spacing:.08em;
-  text-transform: uppercase;
+  border:none;
   cursor:pointer;
-  transition: transform .05s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
-  margin-right: 10px;
-  margin-top: 6px;
+  transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
 }
 
-button[data-role]:hover{
+button[data-role]{
+  margin-right:10px;
+  margin-top:6px;
+  padding: 11px 15px;
+  border-radius:999px;
+  background: linear-gradient(180deg, var(--button-cream), var(--button-cream-2));
+  color: var(--button-ink);
+  border: 1px solid rgba(111, 76, 55, 0.14);
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 8px 18px rgba(66, 43, 28, 0.10);
+}
+
+button[data-role]:hover,
+.card-guess-btn:hover,
+#joinBtn:hover,
+#submitClue:hover,
+#endGuessBtn:hover{
   transform: translateY(-1px);
-  box-shadow: 0 10px 18px rgba(0,0,0,.14);
-  border-color: rgba(20,20,20,.30);
+  filter: brightness(1.03) saturate(1.02);
 }
 
 button[data-role].selected{
-  background: rgba(20,20,20,.92);
-  color: rgba(255,255,255,.92);
-  border-color: rgba(20,20,20,.70);
-  box-shadow: 0 14px 26px rgba(0,0,0,.18);
+  background: linear-gradient(135deg, #d7b06f 0%, #bf8a52 45%, #8f603f 100%);
+  color: #fffaf2;
+  box-shadow: 0 14px 28px rgba(103, 69, 40, 0.26);
+  border: 1px solid rgba(111, 76, 55, 0.18);
 }
 
-/* Team select accent */
-#team{
-  margin-top: 6px;
-}
 #team option[value="red"]{ color: var(--red); }
 #team option[value="blue"]{ color: var(--blue); }
 
-/* Primary / Secondary buttons */
 #joinBtn,
-#reconnectBtn,
 #submitClue,
 #endGuessBtn{
-  width: 100%;
-  margin-top: 16px;
+  width:100%;
+  margin-top:16px;
+  padding: 13px 16px;
+  border-radius: 18px;
+  color: rgba(255,255,255,0.96);
+  font-weight:900;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  box-shadow: 0 18px 28px rgba(35, 23, 41, 0.18);
+}
+
+#joinBtn,
+#submitClue{
+  background: linear-gradient(90deg, #c89257 0%, #d8b26f 45%, #a77349 100%);
+  color: #fffaf2;
+  box-shadow: 0 18px 28px rgba(78, 50, 27, 0.22);
+}
+
+#endGuessBtn{
+  background: linear-gradient(90deg, #f5ecd8 0%, #ead9b8 100%);
+  color: var(--button-brown-deep);
+  box-shadow: 0 14px 24px rgba(78, 50, 27, 0.12);
+}
+
+
+#output{
+  margin:14px 2px 0;
+  min-height:44px;
   padding: 12px 14px;
   border-radius: 16px;
-  border: none;
-  cursor:pointer;
-  font-weight: 900;
-  letter-spacing:.10em;
-  text-transform: uppercase;
-  box-shadow: 0 16px 30px rgba(0,0,0,.20);
+  background: rgba(111,93,77,0.08);
+  border: 1px solid rgba(111,93,77,0.14);
+  color: rgba(52,41,47,0.78);
+  font-weight:700;
 }
-
-#joinBtn{
-  background: linear-gradient(90deg, rgba(196,61,61,.95), rgba(47,111,214,.92));
-  color: rgba(255,255,255,.95);
-}
-
-#joinBtn:hover{ filter: brightness(1.03); }
-#joinBtn:active{ transform: translateY(1px); }
-
-#reconnectBtn{
-  background: rgba(20,20,20,.82);
-  color: rgba(255,255,255,.92);
-  border: 1px solid rgba(255,255,255,.12);
-}
-
-#reconnectBtn:hover{
-  background: rgba(20,20,20,.92);
-}
-
-/* Output / error text */
-#output{
-  margin: 14px 2px 0;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(20,20,20,.06);
-  border: 1px dashed rgba(20,20,20,.18);
-  color: rgba(20,20,20,.78);
-  font-weight: 650;
-  min-height: 44px;
-}
-
-/* =========================
-   Game screen base styling
-   (kept simple; optional)
-   ========================= */
 
 #lobby-screen,
 #guesser-screen,
 #clue-screen{
-  width: min(980px, 92vw);
-  margin: 0 auto 42px;
-  padding: 18px 16px;
+  padding: 18px 18px 24px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
 }
 
 #lobby-screen h2,
-#guesser-screen h2{
-  margin: 6px 0 12px;
+#guesser-screen h2,
+#clue-screen > label:first-of-type{
+  margin: 4px 0 16px;
   letter-spacing:.18em;
-  text-transform: uppercase;
+  text-transform:uppercase;
+  font-weight:900;
 }
 
-.turn-status{
-  margin: 0 0 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.10);
+#clue-screen > label:first-of-type{
+  color: rgba(255,255,255,0.94);
 }
 
-/* Board grid + cards (Codenames feel) */
+.turn-status,
+#lobby-info{
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: var(--shadow-sm);
+}
+
 .board-grid{
   display:grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
   margin-top: 12px;
 }
 
 @media (max-width: 680px){
-  .board-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .board-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .card{
   position:relative;
-  border-radius: 16px;
-  padding: 12px;
-  min-height: 74px;
-  background: linear-gradient(180deg, #fbf6e7, #efe1c3);
-  color: #1a1a1a;
-  border: 1px solid rgba(0,0,0,.12);
-  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+  min-height: 94px;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fbf5e7, #efe1c6);
+  color: #1f1722;
+  border: 1px solid rgba(76,58,58,0.12);
+  box-shadow: 0 10px 24px rgba(25,18,28,0.14);
   display:flex;
   flex-direction:column;
   justify-content:space-between;
   user-select:none;
 }
 
-.card-word{
-  font-weight: 900;
-  letter-spacing:.06em;
-  text-transform: uppercase;
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent 44%);
+  pointer-events:none;
+}
+
+.card-word,
+.clue-card{
+  position:relative;
+  z-index:1;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
   font-size: 14px;
 }
 
 .card-guess-btn{
-  margin-top: 10px;
-  width: 100%;
+  position:relative;
+  z-index:1;
+  width:100%;
+  margin-top:10px;
+  padding: 9px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(0,0,0,.16);
-  background: rgba(255,255,255,.62);
-  font-weight: 900;
+  background: linear-gradient(180deg, #f6eddc, #e7d7b7);
+  border: 1px solid rgba(111, 76, 55, 0.14);
+  color: var(--button-brown-deep);
+  font-weight:900;
   letter-spacing:.08em;
-  text-transform: uppercase;
-  cursor:pointer;
-  padding: 8px 10px;
+  text-transform:uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
-.card-guess-btn:disabled{
-  opacity:.45;
+.card-guess-btn:disabled,
+#submitClue:disabled,
+#endGuessBtn:disabled{
+  opacity:.46;
   cursor:not-allowed;
+  filter:saturate(.75);
 }
 
 .card.highlighted{
-  outline: 4px solid rgba(47,111,214,.35);
-  box-shadow: 0 0 0 6px rgba(47,111,214,.18), 0 16px 32px rgba(0,0,0,.22);
+  transform: translateY(-2px);
+  outline: 4px solid rgba(97,137,223,0.38);
+  box-shadow: 0 0 0 7px rgba(97,137,223,0.16), 0 18px 30px rgba(24,17,30,0.22);
 }
 
-/* Revealed / removed cards */
 .card-empty{
-  background: rgba(255,255,255,.06);
-  border: 1px dashed rgba(255,255,255,.20);
-  box-shadow: none;
-  min-height: 74px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+  border: 1px dashed rgba(255,255,255,0.18);
+  box-shadow:none;
 }
 
-/* Clue master colors */
-.clue-card{ font-weight: 900; text-transform: uppercase; }
-.card-red{ background: linear-gradient(180deg, rgba(196,61,61,.92), rgba(196,61,61,.70)); color: #fff; }
-.card-blue{ background: linear-gradient(180deg, rgba(47,111,214,.92), rgba(47,111,214,.70)); color: #fff; }
-.card-bomb{ background: linear-gradient(180deg, rgba(20,20,20,.92), rgba(20,20,20,.72)); color: #fff; }
-.card-neutral{ background: linear-gradient(180deg, #e6dcc4, #d6c7a6); color: #1a1a1a; }
+.card-red{ background: linear-gradient(180deg, #d55a5d, #b44649); color:#fff; }
+.card-blue{ background: linear-gradient(180deg, #5c8bea, #4472d2); color:#fff; }
+.card-bomb{ background: linear-gradient(180deg, #2e2738, #19151f); color:#fff; }
+.card-neutral{ background: linear-gradient(180deg, #e5dbc4, #d4c5a5); color:#1a1418; }
 
-/* Hide board when not your turn */
 .board-hidden{
-  opacity: .25;
-  filter: blur(1px);
+  opacity:.28;
+  filter:saturate(.7) blur(1px);
   pointer-events:none;
 }
 
-
-/* =========================
-   Prettier Lobby + Clue UI
-   ========================= */
-
-/* --- Clue screen container polish --- */
-#clue-screen{
-  width: min(980px, 92vw);
-  margin: 0 auto 42px;
-}
-
-#clue-screen > label:first-of-type{
-  display:block;
-  margin: 8px 0 12px;
-  font-weight: 900;
-  letter-spacing:.18em;
-  text-transform: uppercase;
-  opacity: .92;
-}
-
-/* Clue controls bar */
 .clue-controls{
   display:flex;
   gap: 12px;
-  align-items: flex-end;
-  flex-wrap: wrap;
-
-  padding: 14px 14px;
-  border-radius: 18px;
-
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.12);
-  box-shadow: 0 16px 30px rgba(0,0,0,.18);
-  backdrop-filter: blur(8px);
-
-  margin: 12px 0 16px;
+  align-items:flex-end;
+  flex-wrap:wrap;
+  margin: 14px 0 0;
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: var(--shadow-md);
 }
 
 .clue-controls .field{
-  flex: 1 1 260px;
-  min-width: 220px;
+  flex:1 1 280px;
+  min-width:220px;
 }
 
 .clue-controls .field.small{
-  flex: 0 0 160px;
-  min-width: 140px;
-}
-
-.clue-controls label{
-  display:block;
-  margin: 0 0 8px;
-  font-weight: 900;
-  letter-spacing:.10em;
-  text-transform: uppercase;
-  font-size: 12px;
-  opacity: .85;
+  flex:0 0 160px;
+  min-width:140px;
 }
 
 #clueWord,
 #clueNumber{
-  width:100%;
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(10,14,22,.55);
-  color: rgba(255,255,255,.92);
-  outline: none;
-  font-size: 16px;
+  background: rgba(22, 27, 46, 0.72);
+  color: rgba(255,255,255,0.94);
+  border: 1px solid rgba(255,255,255,0.10);
 }
 
-#clueWord:focus,
-#clueNumber:focus{
-  border-color: rgba(47,111,214,.35);
-  box-shadow: 0 0 0 4px rgba(47,111,214,.18);
+#clue-answer-board-wrapper h3{
+  margin: 0 0 10px;
+  font-size: 1.05rem;
 }
 
-.btn-clue{
-  flex: 0 0 auto;
-  padding: 12px 16px;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
+@media (max-width: 760px){
+  body{
+    background-attachment: scroll;
+  }
 
-  font-weight: 900;
-  letter-spacing:.10em;
-  text-transform: uppercase;
+  #join-screen,
+  #lobby-screen,
+  #guesser-screen,
+  #clue-screen{
+    border-radius: 24px;
+  }
 
-  color: rgba(255,255,255,.95);
-  background: linear-gradient(90deg, rgba(47,111,214,.95), rgba(196,61,61,.92));
-  box-shadow: 0 16px 30px rgba(0,0,0,.20);
-  min-width: 190px;
-}
-
-.btn-clue:disabled{
-  opacity: .45;
-  cursor: not-allowed;
-  filter: grayscale(.2);
-}
-
-/* =========================
-   Brighter + more RED background
-   ========================= */
-
-:root{
-  /* keep it brighter, but slightly warmer */
-  --bg0: #16203a;
-  --bg1: #24365a;
-}
-
-body{
-  background:
-    /* RED (dominant) */
-    radial-gradient(1100px 650px at 32% 18%, rgba(196,61,61,.34), transparent 60%),
-    radial-gradient(900px 520px at 70% 78%, rgba(196,61,61,.20), transparent 62%),
-
-    /* BLUE (supporting) */
-    radial-gradient(950px 600px at 82% 22%, rgba(47,111,214,.18), transparent 60%),
-
-    /* lift */
-    radial-gradient(1100px 800px at 50% 92%, rgba(255,255,255,.11), transparent 66%),
-    linear-gradient(180deg, var(--bg0), var(--bg1));
-}
-
-/* optional: keep grid subtle */
-body::before{
-  opacity: .26;
-}
-
-html, body{
-  height: auto;          /* don't lock to viewport height */
-  min-height: 100%;
-}
-
-body{
-  min-height: 100svh;    /* mobile-safe viewport height */
-  background-repeat: no-repeat;
-  background-attachment: fixed;  /* keeps it consistent while scrolling */
-  background-size: cover;         /* prevents “restart” seams */
+  .card{
+    min-height: 86px;
+  }
 }
