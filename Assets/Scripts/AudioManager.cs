@@ -4,8 +4,14 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager instance;
     [SerializeField] private AudioSource _titleMusic;
+    [SerializeField] private AudioSource _lobbyMusic;
+    [SerializeField] private AudioSource _boardMusic;
     [SerializeField] private AudioSource[] _sfx;
     [SerializeField] private AudioSource[] _bg; // Ideally built for more than 1 Background tune
+
+    public AudioSource TitleMusic => _titleMusic;
+    public AudioSource LobbyMusic => _lobbyMusic;
+    public AudioSource BoardMusic => _boardMusic;
     public void Awake()
     {
         // Singleton data structure
@@ -20,23 +26,67 @@ public class AudioManager : MonoBehaviour
 
     public void PlayTitle() // Play main menu music
     {
-        _titleMusic.Play();
+        if (_titleMusic != null)
+            _titleMusic.Play();
     }
 
     public void LowerTitle() // Lower the title music (in the settings for example)
     {
-        _titleMusic.volume = 0.2f;
+        if (_titleMusic != null)
+            _titleMusic.volume = 0.2f;
     }
 
     public void IncreaseTitle() // Increase the title music (after closing the settings for example)
     {
-        _titleMusic.volume = 0.6f;
+        if (_titleMusic != null)
+            _titleMusic.volume = 0.6f;
     }
 
     public void StopTitle() // Stop the title music (after hitting play)
     {
-        //_titleMusic.Stop();
-        _titleMusic.volume = 0f; // Because stop doesnt work for some reason
+        if (_titleMusic != null)
+        {
+            //_titleMusic.Stop();
+            _titleMusic.volume = 0f; // Because stop doesnt work for some reason
+        }
+    }
+    
+    public void PlayLobby() // Play main menu music
+    {
+        StopTitle();
+
+        if (_lobbyMusic != null)
+            _lobbyMusic.Play();
+    }
+
+    public void LowerLobby() // Lower the title music (in the settings for example)
+    {
+        if (_lobbyMusic != null)
+            _lobbyMusic.volume = 0.2f;
+    }
+
+    public void IncreaseLobby() // Increase the title music (after closing the settings for example)
+    {
+        if (_lobbyMusic != null)
+            _lobbyMusic.volume = 0.6f;
+    }
+
+    public void StopLobby() // Stop the title music (after hitting play)
+    {
+        if (_lobbyMusic != null)
+        {
+            //_titleMusic.Stop();
+            _lobbyMusic.volume = 0f; // Because stop doesnt work for some reason
+        }
+    }
+
+    public void PlayBoard() // Play main menu music
+    {
+        StopTitle();
+        StopLobby();
+
+        if (_boardMusic != null)
+            _boardMusic.Play();
     }
 
     public void PlaySFX(int sfxToPlay) // Dragging an item, item dropping, cracks on the floor etc...

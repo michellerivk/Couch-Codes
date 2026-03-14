@@ -688,7 +688,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 1196c7f0bdd97b843b85a173bbeb8a6f, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.504
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -2472,6 +2472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   _titleMusic: {fileID: 0}
+  _lobbyMusic: {fileID: 181151868}
   _sfx:
   - {fileID: 1086173045}
   - {fileID: 1362345812}
