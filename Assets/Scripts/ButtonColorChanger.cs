@@ -29,5 +29,11 @@ public class ButtonColorChanger : MonoBehaviour, IPointerEnterHandler, IPointerE
             _lobbyText.transform.localScale = Vector3.one;
         }
     }
+
+    public void PlaySFX(int SFX)
+    {
+        if (AudioManager.instance != null)
+            AudioManager.instance.PlaySFXPitchAdjusted(SFX);
+    }
 }
         
