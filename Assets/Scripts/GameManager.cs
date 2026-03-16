@@ -562,11 +562,6 @@ public class GameManager : MonoBehaviour
         NetworkManager.Instance.AfterStatusChange();
     }
 
-    public void QuitGame()
-    {
-        Application.Quit();
-    }
-
     private static string ReverseForUnity(string s)
     {
         return new string(s.Reverse().ToArray());

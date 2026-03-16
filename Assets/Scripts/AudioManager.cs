@@ -26,6 +26,12 @@ public class AudioManager : MonoBehaviour
 
     public void PlayTitle() // Play main menu music
     {
+        if (_lobbyMusic != null)
+            _lobbyMusic.Stop();
+        
+        if (_boardMusic != null)
+            _boardMusic.Stop();
+
         if (_titleMusic != null)
             _titleMusic.Play();
     }
@@ -46,8 +52,8 @@ public class AudioManager : MonoBehaviour
     {
         if (_titleMusic != null)
         {
-            //_titleMusic.Stop();
-            _titleMusic.volume = 0f; // Because stop doesnt work for some reason
+            _titleMusic.Stop();
+            //_titleMusic.volume = 0f; // Because stop doesnt work for some reason
         }
     }
     

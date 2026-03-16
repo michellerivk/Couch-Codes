@@ -18,12 +18,19 @@ public class SceneSwitcher : MonoBehaviour
     {
         if (AudioManager.instance != null)
         {
-            if (sceneName == "LobbyScene" && AudioManager.instance.LobbyMusic != null) // Play the lobby background music
+            if (sceneName == "MainMenu")
+                AudioManager.instance.PlayTitle();
+
+            if (sceneName == "LobbyScene") // Play the lobby background music
                 AudioManager.instance.PlayLobby();
 
             if (sceneName == "BoardScene") // Play the board background music
                 AudioManager.instance.PlayBoard();
         }
 
+    }
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }
