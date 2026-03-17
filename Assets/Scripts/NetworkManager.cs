@@ -38,7 +38,8 @@ public class NetworkManager : MonoBehaviour
         _roomCode = _lm.roomCode;
 
         // Ensure Node is up before socket connects
-        await NodeServerRunner.Instance.EnsureServerRunning();
+        if(NodeServerRunner.Instance != null)
+            await NodeServerRunner.Instance.EnsureServerRunning();
 
         HandleSocketConnection();
     }

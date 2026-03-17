@@ -22,6 +22,7 @@ public class Card : MonoBehaviour
     [SerializeField] private Color _highlightColor = new Color(1f, 0.92f, 0.60f, 1f);
     [SerializeField] private float _highlightScale = 1.03f;
     [SerializeField] private float _scaleAnimDuration = 0.12f;
+    [SerializeField] private Animator _anim;
 
     private Material _runtimeMaterial;
     private Vector3 _baseScale;
@@ -35,7 +36,12 @@ public class Card : MonoBehaviour
 
     private void Awake()
     {
+        if (_anim != null)
+            _anim.enabled = false;
+
         _baseScale = transform.localScale;
+
+        transform.localScale = Vector3.zero;
 
         if (_spriteRenderer != null && _highlightMaterialTemplate != null)
         {
@@ -162,6 +168,23 @@ public class Card : MonoBehaviour
         {
             // Expected when highlight is toggled rapidly or object is destroyed.
         }
+    }
+
+    public void PlayOpenAnimation(float delay)
+    {
+        _ = PlayOpenAnimationAsync(delay);
+    }
+
+    public async Task PlayOpenAnimationAsync(float delay)
+    {
+        if (delay > 0f)
+            await Task.Delay(Mathf.RoundToInt(delay * 1000f));
+
+        if (this == null || gameObject == null || _anim == null)
+            return;
+
+        _anim.enabled = true;
+        _anim.Play("CardOpens", 0, 0f);
     }
 
     public string GetTeamAsString()

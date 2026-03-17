@@ -101,6 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6314933748044641880}
   - component: {fileID: 7062042386719928315}
+  - component: {fileID: 2744045191927569446}
   - component: {fileID: 7178510915811398810}
   - component: {fileID: -7272850850025721316}
   m_Layer: 5
@@ -119,7 +120,7 @@ RectTransform:
   m_GameObject: {fileID: 6544022912681802299}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3283587386714862505}
@@ -140,6 +141,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6544022912681802299}
   m_CullTransparentMesh: 0
+--- !u!95 &2744045191927569446
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6544022912681802299}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5c64c7f1f1525fd40ba6634c39154843, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &7178510915811398810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +183,7 @@ MonoBehaviour:
   _highlightColor: {r: 1, g: 0.92, b: 0.6, a: 1}
   _highlightScale: 1.03
   _scaleAnimDuration: 0.12
+  _anim: {fileID: 2744045191927569446}
 --- !u!114 &-7272850850025721316
 MonoBehaviour:
   m_ObjectHideFlags: 0

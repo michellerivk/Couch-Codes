@@ -19,7 +19,10 @@ public class SceneSwitcher : MonoBehaviour
         if (AudioManager.instance != null)
         {
             if (sceneName == "MainMenu")
+            {
                 AudioManager.instance.PlayTitle();
+                if (NetworkManager.Instance != null) Destroy(NetworkManager.Instance);
+            }
 
             if (sceneName == "LobbyScene") // Play the lobby background music
                 AudioManager.instance.PlayLobby();

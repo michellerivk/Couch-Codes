@@ -83,7 +83,8 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
-        NetworkManager.Instance.AfterStatusChange();
+        if(NetworkManager.Instance != null)
+            NetworkManager.Instance.AfterStatusChange();
     }
 
     // Loads the words from the JSON file into an array of strings
@@ -166,6 +167,8 @@ public class GameManager : MonoBehaviour
                 if (redCards.Count < 9)
                 {
                     newCard.Init(word.id, owner, language);
+                    newCard.PlayOpenAnimation(boardIndex * 0.08f);
+
                     redCards.Add(word.id);
 
                     _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID
@@ -188,6 +191,8 @@ public class GameManager : MonoBehaviour
                 if (blueCards.Count < 8)
                 {
                     newCard.Init(word.id, owner, language);
+                    newCard.PlayOpenAnimation(boardIndex * 0.08f);
+
                     blueCards.Add(word.id);
 
                     _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID
@@ -210,6 +215,8 @@ public class GameManager : MonoBehaviour
                 if (neutralCards.Count < 7)
                 {
                     newCard.Init(word.id, owner, language);
+                    newCard.PlayOpenAnimation(boardIndex * 0.08f);
+
                     neutralCards.Add(word.id);
 
                     _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID
@@ -232,6 +239,8 @@ public class GameManager : MonoBehaviour
                 if (bombCards.Count < 1)
                 {
                     newCard.Init(word.id, owner, language);
+                    newCard.PlayOpenAnimation(boardIndex * 0.08f);
+
                     bombCards.Add(word.id);
 
                     _cardsById[word.id] = newCard; // Add the card to the Dict associated with it's ID

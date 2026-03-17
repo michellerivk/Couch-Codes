@@ -82,7 +82,7 @@ public class AudioManager : MonoBehaviour
         if (_lobbyMusic != null)
         {
             //_titleMusic.Stop();
-            _lobbyMusic.volume = 0f; // Because stop doesnt work for some reason
+            _lobbyMusic.Stop(); // Because stop doesnt work for some reason
         }
     }
 
