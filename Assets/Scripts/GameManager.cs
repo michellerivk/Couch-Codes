@@ -512,6 +512,9 @@ public class GameManager : MonoBehaviour
         _endScreenText.text = $"Game Over!\n The {winner.winningTeam} Team WON";
         _gameOverObject.SetActive(true);
 
+        if (AudioManager.instance != null)
+            AudioManager.instance.PlaySFX(5);
+
         // Send final turn state (phase = GameOver)
         NetworkManager.Instance.AfterStatusChange();
 
