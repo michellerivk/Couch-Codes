@@ -73,14 +73,14 @@ public class LobbyManager : MonoBehaviour
         int maxCodeLength = 4;
 
         string[] PossibleLetters = new string[26] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-        string[] PossibleNumbers = new string[10] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+        string[] PossibleNumbers = new string[9] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
         for (int i = 0; i < maxCodeLength; i++) // Generate the code
         {
-            if (UnityEngine.Random.Range(0, 10) < 5) // Make the odds between choosing a letter or a number 50% 
+            if (UnityEngine.Random.Range(1, 10) < 5) // Make the odds between choosing a letter or a number 50% 
                 roomCode += PossibleLetters[UnityEngine.Random.Range(0, PossibleLetters.Length)];
             else
-                roomCode += PossibleNumbers[UnityEngine.Random.Range(0, PossibleNumbers.Length)];
+                roomCode += PossibleNumbers[UnityEngine.Random.Range(1, PossibleNumbers.Length)];
         }
 
         Debug.Log(roomCode);

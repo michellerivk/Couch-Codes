@@ -5,13 +5,16 @@ public class AudioManager : MonoBehaviour
     public static AudioManager instance;
     [SerializeField] private AudioSource _titleMusic;
     [SerializeField] private AudioSource _lobbyMusic;
-    [SerializeField] private AudioSource _boardMusic;
+    [SerializeField] private AudioSource _fastBoardMusic;
+    [SerializeField] private AudioSource _slowBoardMusic;
     [SerializeField] private AudioSource[] _sfx;
     [SerializeField] private AudioSource[] _bg; // Ideally built for more than 1 Background tune
 
     public AudioSource TitleMusic => _titleMusic;
     public AudioSource LobbyMusic => _lobbyMusic;
-    public AudioSource BoardMusic => _boardMusic;
+    public AudioSource FastBoardMusic => _fastBoardMusic;
+    public AudioSource SlowBoardMusic => _slowBoardMusic;
+
     public void Awake()
     {
         // Singleton data structure
@@ -26,11 +29,9 @@ public class AudioManager : MonoBehaviour
 
     public void PlayTitle() // Play main menu music
     {
-        if (_lobbyMusic != null)
-            _lobbyMusic.Stop();
-        
-        if (_boardMusic != null)
-            _boardMusic.Stop();
+        StopLobby();
+        StopSlowBoard();
+        StopFastBoard();
 
         if (_titleMusic != null)
             _titleMusic.Play();
@@ -53,28 +54,18 @@ public class AudioManager : MonoBehaviour
         if (_titleMusic != null)
         {
             _titleMusic.Stop();
-            //_titleMusic.volume = 0f; // Because stop doesnt work for some reason
+            //_titleMusic.volume = 0f;
         }
     }
     
     public void PlayLobby() // Play main menu music
     {
         StopTitle();
+        StopFastBoard();
+        StopSlowBoard();
 
         if (_lobbyMusic != null)
             _lobbyMusic.Play();
-    }
-
-    public void LowerLobby() // Lower the title music (in the settings for example)
-    {
-        if (_lobbyMusic != null)
-            _lobbyMusic.volume = 0.2f;
-    }
-
-    public void IncreaseLobby() // Increase the title music (after closing the settings for example)
-    {
-        if (_lobbyMusic != null)
-            _lobbyMusic.volume = 0.6f;
     }
 
     public void StopLobby() // Stop the title music (after hitting play)
@@ -86,13 +77,42 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void PlayBoard() // Play main menu music
+    public void PlaySlowBoard() // Play main menu music
     {
         StopTitle();
         StopLobby();
+        StopFastBoard();
 
-        if (_boardMusic != null)
-            _boardMusic.Play();
+        if (_slowBoardMusic != null)
+            _slowBoardMusic.Play();
+    }
+    public void StopSlowBoard() // Play main menu music
+    {
+        if (_slowBoardMusic != null)
+            _slowBoardMusic.Stop();
+    }
+    
+    public void PlayFastBoard() // Play main menu music
+    {
+        StopSlowBoard();
+
+        if (_fastBoardMusic != null)
+            _fastBoardMusic.Play();
+    }
+    public void LowerFastBoard() // Play main menu music
+    {
+        if (_fastBoardMusic != null)
+            _fastBoardMusic.volume = 0.2f;
+    }
+    public void IncreaseFastBoard() // Play main menu music
+    {
+        if (_fastBoardMusic != null)
+            _fastBoardMusic.volume = 0.495f;
+    }
+    public void StopFastBoard() // Play main menu music
+    {
+        if (_fastBoardMusic != null)
+            _fastBoardMusic.Stop();
     }
 
     public void PlaySFX(int sfxToPlay) // Dragging an item, item dropping, cracks on the floor etc...

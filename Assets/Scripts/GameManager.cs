@@ -299,12 +299,14 @@ public class GameManager : MonoBehaviour
         else
             _clueNumber.text = "inf";
 
-        // Set the rount initial stats
+        // Set the round initial stats
         _currentTeam = team == "red" ? Team.red : Team.blue;
 
         _guessesRemaining = clueNumber + 1;
 
         _currentStatus = Status.WaitingForGuesses;
+
+        if (AudioManager.instance != null) AudioManager.instance.PlayFastBoard();
 
         NetworkManager.Instance.AfterStatusChange();
 
@@ -413,8 +415,12 @@ public class GameManager : MonoBehaviour
 
             if(_currentTeam != Team.red)
             {
+                if (AudioManager.instance != null) AudioManager.instance.PlaySFXPitchAdjusted(7);
                 SwitchTurnToOtherTeam(); // Switch to the other team if clicked the wrong team's card
             }
+
+            else
+                if (AudioManager.instance != null) AudioManager.instance.PlaySFXPitchAdjusted(6);
         }
         else if (cardOwner == "blue")
         {
@@ -428,8 +434,12 @@ public class GameManager : MonoBehaviour
 
             if (_currentTeam != Team.blue)
             {
+                if (AudioManager.instance != null) AudioManager.instance.PlaySFXPitchAdjusted(7);
                 SwitchTurnToOtherTeam(); // Switch to the other team if clicked the wrong team's card
             }
+
+            else
+                if (AudioManager.instance != null) AudioManager.instance.PlaySFXPitchAdjusted(6);
         }
 
         _redCards.text = _redTeamCards.ToString();
@@ -443,6 +453,8 @@ public class GameManager : MonoBehaviour
     {
         if (_currentStatus == Status.GameOver)
             return;
+
+        if (AudioManager.instance != null) AudioManager.instance.PlaySlowBoard();
 
         ClearAllHighlights(); // Clear the highlights from the Unity board
 
@@ -513,7 +525,10 @@ public class GameManager : MonoBehaviour
         _gameOverObject.SetActive(true);
 
         if (AudioManager.instance != null)
+        {
+            AudioManager.instance.LowerFastBoard();
             AudioManager.instance.PlaySFX(5);
+        }
 
         // Send final turn state (phase = GameOver)
         NetworkManager.Instance.AfterStatusChange();
@@ -534,6 +549,12 @@ public class GameManager : MonoBehaviour
     // Start the game over
     public void PlayAgain()
     {
+        if (AudioManager.instance != null)
+        {
+            AudioManager.instance.PlaySlowBoard();
+            AudioManager.instance.IncreaseFastBoard();
+        }
+
         // Clear the board
         if (_boardParent != null)
         {

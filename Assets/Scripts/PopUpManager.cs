@@ -14,6 +14,12 @@ public class PopUpManager : MonoBehaviour
     {
         //_popUp.SetActive(on);
         _animWindow.SetBool("IsOpen", on);
+
+        if (AudioManager.instance != null && AudioManager.instance.TitleMusic != null)
+        {
+            if (on) AudioManager.instance.LowerTitle();
+            else AudioManager.instance.IncreaseTitle(); 
+        }
     }
    
 }

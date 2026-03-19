@@ -5,7 +5,7 @@ public class SceneSwitcher : MonoBehaviour
 {
 	private void Start()
 	{
-        if(AudioManager.instance != null && AudioManager.instance.TitleMusic != null)
+        if(AudioManager.instance != null && AudioManager.instance.TitleMusic != null && SceneManager.GetActiveScene().name == "MainMenu")
 	        AudioManager.instance.PlayTitle(); // Play the title music
 	}
     public static void SwitchScene(string sceneName)
@@ -20,7 +20,7 @@ public class SceneSwitcher : MonoBehaviour
         {
             if (sceneName == "MainMenu")
             {
-                AudioManager.instance.PlayTitle();
+                //AudioManager.instance.PlayTitle();
                 if (NetworkManager.Instance != null) Destroy(NetworkManager.Instance);
             }
 
@@ -28,7 +28,7 @@ public class SceneSwitcher : MonoBehaviour
                 AudioManager.instance.PlayLobby();
 
             if (sceneName == "BoardScene") // Play the board background music
-                AudioManager.instance.PlayBoard();
+                AudioManager.instance.PlaySlowBoard();
         }
 
     }
