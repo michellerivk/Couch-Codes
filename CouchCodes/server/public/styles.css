@@ -1,0 +1,477 @@
+:root{
+  --bg-night: #4a362c;
+  --bg-dusk: #6a5244;
+  --bg-floor: #9a7a63;
+  --glow-gold: rgba(255, 204, 145, 0.28);
+  --glow-rose: rgba(214, 154, 126, 0.16);
+  --glow-blue: rgba(176, 130, 96, 0.16);
+
+  --panel: rgba(255,255,255,0.10);
+  --panel-strong: rgba(255,255,255,0.14);
+  --panel-border: rgba(255,255,255,0.16);
+
+  --card: #f5ecd7;
+  --card-2: #ebddbf;
+  --ink: #2a2230;
+  --ink-soft: rgba(42,34,48,0.72);
+
+  --red: #d05658;
+  --blue: #4e82e6;
+  --neutral: #d8ccb0;
+  --bomb: #2a2433;
+
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --shadow-lg: 0 28px 70px rgba(16, 12, 28, 0.32);
+  --shadow-md: 0 16px 34px rgba(16, 12, 28, 0.22);
+  --shadow-sm: 0 8px 18px rgba(16, 12, 28, 0.14);
+
+  --button-cream: #f5ecd8;
+  --button-cream-2: #e8d7b6;
+  --button-gold: #d2ab6a;
+  --button-honey: #c79252;
+  --button-caramel: #a56f45;
+  --button-brown: #6f4c37;
+  --button-brown-deep: #53382a;
+  --button-ink: #2f2119;
+  --button-shadow: 0 14px 28px rgba(74, 47, 28, 0.20);
+}
+
+*{ box-sizing:border-box; }
+html, body{
+  min-height:100%;
+}
+
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: rgba(255,255,255,0.95);
+  overflow-x:hidden;
+  background:
+    radial-gradient(900px 520px at 8% 18%, var(--glow-gold), transparent 58%),
+    radial-gradient(820px 440px at 88% 16%, var(--glow-blue), transparent 56%),
+    radial-gradient(880px 540px at 55% 105%, rgba(255, 220, 176, 0.14), transparent 60%),
+    radial-gradient(700px 420px at 35% 8%, var(--glow-rose), transparent 52%),
+    linear-gradient(180deg, #4a362c 0%, var(--bg-night) 26%, var(--bg-dusk) 72%, var(--bg-floor) 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position:relative;
+}
+
+/* soft lamp glows + cozy vignette */
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+}
+
+body::before{
+  background:
+    radial-gradient(320px 320px at 10% 28%, rgba(255, 217, 163, 0.18), transparent 62%),
+    radial-gradient(360px 360px at 92% 36%, rgba(209, 154, 114, 0.12), transparent 64%),
+    radial-gradient(600px 180px at 50% 100%, rgba(72, 46, 28, 0.24), transparent 72%);
+  filter: blur(10px);
+}
+
+body::after{
+  background:
+    radial-gradient(circle at center, transparent 48%, rgba(34,24,18,0.16) 100%),
+    repeating-radial-gradient(circle at 20% 30%, rgba(255, 244, 230, 0.03) 0 1px, transparent 1px 18px);
+  opacity:0.55;
+  mix-blend-mode:screen;
+}
+
+h1{
+  margin: 34px 16px 20px;
+  text-align:center;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  font-weight:900;
+  font-size: clamp(30px, 4.4vw, 46px);
+  text-shadow: 0 6px 24px rgba(15,10,22,0.25);
+}
+
+h1::after{
+  display:block;
+  margin-top:10px;
+  letter-spacing:.34em;
+  font-size:12px;
+  font-weight:700;
+  opacity:.72;
+}
+
+#lobby-screen,
+#guesser-screen,
+#clue-screen{
+  display:none;
+}
+
+#join-screen,
+#lobby-screen,
+#guesser-screen,
+#clue-screen{
+  width:min(1020px, 92vw);
+  margin:0 auto 42px;
+}
+
+#join-screen{
+  width:min(560px, 92vw);
+  padding: 28px 22px 20px;
+  position:relative;
+  overflow:hidden;
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(255,247,231,0.92), rgba(247,236,214,0.90));
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+#join-screen::before{
+  content:"game lobby";
+  position:absolute;
+  top:16px;
+  right:18px;
+  padding: 7px 12px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.54);
+  color: rgba(61,44,38,0.72);
+  border: 1px solid rgba(61,44,38,0.08);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:10px;
+  font-weight:900;
+  box-shadow: var(--shadow-sm);
+}
+
+#join-screen::after{
+  content:"★ ✦ ★";
+  position:absolute;
+  left:18px;
+  top:18px;
+  font-size:13px;
+  letter-spacing:.2em;
+  color: rgba(194,134,78,0.62);
+}
+
+#join-screen > div{
+  margin-top: 14px;
+}
+
+#join-screen label,
+#clue-screen label,
+.clue-controls label{
+  display:block;
+  margin: 14px 0 8px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  font-size:12px;
+}
+
+#join-screen label{
+  color: rgba(42,34,48,0.76);
+}
+
+#join-screen input,
+#join-screen select,
+#clueWord,
+#clueNumber{
+  width:100%;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(63,48,54,0.12);
+  outline:none;
+  font-size:16px;
+  transition: box-shadow .2s ease, transform .08s ease, border-color .2s ease;
+}
+
+#join-screen input,
+#join-screen select{
+  background: rgba(255,255,255,0.72);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 8px 18px rgba(45,30,34,0.08);
+}
+
+#join-screen input:focus,
+#join-screen select:focus,
+#clueWord:focus,
+#clueNumber:focus{
+  border-color: rgba(199, 146, 82, 0.42);
+  box-shadow: 0 0 0 4px rgba(210, 171, 106, 0.18), 0 10px 20px rgba(26,19,33,0.10);
+}
+
+#roomCode{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing:.08em;
+}
+
+button[data-role],
+.card-guess-btn,
+#joinBtn,
+#submitClue,
+#endGuessBtn{
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+button[data-role]{
+  margin-right:10px;
+  margin-top:6px;
+  padding: 11px 15px;
+  border-radius:999px;
+  background: linear-gradient(180deg, var(--button-cream), var(--button-cream-2));
+  color: var(--button-ink);
+  border: 1px solid rgba(111, 76, 55, 0.14);
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 8px 18px rgba(66, 43, 28, 0.10);
+}
+
+button[data-role]:hover,
+.card-guess-btn:hover,
+#joinBtn:hover,
+#submitClue:hover,
+#endGuessBtn:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.03) saturate(1.02);
+}
+
+button[data-role].selected{
+  background: linear-gradient(135deg, #d7b06f 0%, #bf8a52 45%, #8f603f 100%);
+  color: #fffaf2;
+  box-shadow: 0 14px 28px rgba(103, 69, 40, 0.26);
+  border: 1px solid rgba(111, 76, 55, 0.18);
+}
+
+#team option[value="red"]{ color: var(--red); }
+#team option[value="blue"]{ color: var(--blue); }
+
+#joinBtn,
+#submitClue,
+#endGuessBtn{
+  width:100%;
+  margin-top:16px;
+  padding: 13px 16px;
+  border-radius: 18px;
+  color: rgba(255,255,255,0.96);
+  font-weight:900;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  box-shadow: 0 18px 28px rgba(35, 23, 41, 0.18);
+}
+
+#joinBtn,
+#submitClue{
+  background: linear-gradient(90deg, #c89257 0%, #d8b26f 45%, #a77349 100%);
+  color: #fffaf2;
+  box-shadow: 0 18px 28px rgba(78, 50, 27, 0.22);
+}
+
+#endGuessBtn{
+  background: linear-gradient(90deg, #f5ecd8 0%, #ead9b8 100%);
+  color: var(--button-brown-deep);
+  box-shadow: 0 14px 24px rgba(78, 50, 27, 0.12);
+}
+
+
+#output{
+  margin:14px 2px 0;
+  min-height:44px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(111,93,77,0.08);
+  border: 1px solid rgba(111,93,77,0.14);
+  color: rgba(52,41,47,0.78);
+  font-weight:700;
+}
+
+#lobby-screen,
+#guesser-screen,
+#clue-screen{
+  padding: 18px 18px 24px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
+}
+
+#lobby-screen h2,
+#guesser-screen h2,
+#clue-screen > label:first-of-type{
+  margin: 4px 0 16px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+
+#clue-screen > label:first-of-type{
+  color: rgba(255,255,255,0.94);
+}
+
+.turn-status,
+#lobby-info{
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: var(--shadow-sm);
+}
+
+.board-grid{
+  display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (max-width: 680px){
+  .board-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card{
+  position:relative;
+  min-height: 94px;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fbf5e7, #efe1c6);
+  color: #1f1722;
+  border: 1px solid rgba(76,58,58,0.12);
+  box-shadow: 0 10px 24px rgba(25,18,28,0.14);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  user-select:none;
+}
+
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent 44%);
+  pointer-events:none;
+}
+
+.card-word,
+.clue-card{
+  position:relative;
+  z-index:1;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  font-size: 14px;
+}
+
+.card-guess-btn{
+  position:relative;
+  z-index:1;
+  width:100%;
+  margin-top:10px;
+  padding: 9px 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f6eddc, #e7d7b7);
+  border: 1px solid rgba(111, 76, 55, 0.14);
+  color: var(--button-brown-deep);
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.card-guess-btn:disabled,
+#submitClue:disabled,
+#endGuessBtn:disabled{
+  opacity:.46;
+  cursor:not-allowed;
+  filter:saturate(.75);
+}
+
+.card.highlighted{
+  transform: translateY(-2px);
+  outline: 4px solid rgba(97,137,223,0.38);
+  box-shadow: 0 0 0 7px rgba(97,137,223,0.16), 0 18px 30px rgba(24,17,30,0.22);
+}
+
+.card-empty{
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+  border: 1px dashed rgba(255,255,255,0.18);
+  box-shadow:none;
+}
+
+.card-red{ background: linear-gradient(180deg, #d55a5d, #b44649); color:#fff; }
+.card-blue{ background: linear-gradient(180deg, #5c8bea, #4472d2); color:#fff; }
+.card-bomb{ background: linear-gradient(180deg, #2e2738, #19151f); color:#fff; }
+.card-neutral{ background: linear-gradient(180deg, #e5dbc4, #d4c5a5); color:#1a1418; }
+
+.board-hidden{
+  opacity:.28;
+  filter:saturate(.7) blur(1px);
+  pointer-events:none;
+}
+
+.clue-controls{
+  display:flex;
+  gap: 12px;
+  align-items:flex-end;
+  flex-wrap:wrap;
+  margin: 14px 0 0;
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: var(--shadow-md);
+}
+
+.clue-controls .field{
+  flex:1 1 280px;
+  min-width:220px;
+}
+
+.clue-controls .field.small{
+  flex:0 0 160px;
+  min-width:140px;
+}
+
+#clueWord,
+#clueNumber{
+  background: rgba(22, 27, 46, 0.72);
+  color: rgba(255,255,255,0.94);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+#clue-answer-board-wrapper h3{
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 760px){
+  body{
+    background-attachment: scroll;
+  }
+
+  #join-screen,
+  #lobby-screen,
+  #guesser-screen,
+  #clue-screen{
+    border-radius: 24px;
+  }
+
+  .card{
+    min-height: 86px;
+  }
+}

@@ -27,6 +27,9 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _joinAddressText;
     [SerializeField] private LobbyIPTyper _ipTyper;
 
+    [Header("Warning")]
+    [SerializeField] private TextMeshProUGUI _warning;
+
     public string roomCode { get; private set; }
 
     private int _redPlayers = 0;
@@ -64,6 +67,8 @@ public class LobbyManager : MonoBehaviour
                 _languageText.text += "Language: Czech" + " \u2192";
                 return;
         }
+
+        _warning.text = "";
     }
 
     // Creates a random room code
@@ -203,19 +208,18 @@ public class LobbyManager : MonoBehaviour
 
     public void CheckStartingConditions(string scene)
     {
-        // TODO: Disabled for testing, but need to enable before a build!!!
-        /*
         if (_redPlayers < 2 || _bluePlayers < 2 || _codeMasters < 2)
         {
+            _warning.text = ("Not enough players are in the game!\r\nPlease make sure there're at least:\r\n- 2 blue teamates\r\n- 2 red teamates\r\n- 2 clue masters");
             Debug.Log("Not enough players");
             return;
         }
-        */
 
 
 
         if ((_redPlayers + _bluePlayers) > 10)
         {
+            _warning.text = ("There are too many players!\r\nPlease make sure there're only 10 players in the game");
             Debug.Log("Too many players");
             return;
         }
@@ -228,11 +232,14 @@ public class LobbyManager : MonoBehaviour
             {
                 if (group.Count() > 1)
                 {
+                    _warning.text = ($"There are more than 1 Clue Master in the {group.Key} team.");
                     Debug.Log($"There are more than 1 Clue Master in the {group.Key} team");
                     return;
                 }
             }
         }
+
+        _warning.text = "";
 
         canSwitchScene = true;
 
