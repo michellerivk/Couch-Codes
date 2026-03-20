@@ -100,9 +100,13 @@ This project was created to:
 - Main Menu
 <img width="994" height="507" alt="Main Menu" src="https://github.com/user-attachments/assets/e9f0bc58-65ee-4784-ade7-ea78a56148e0" />
 - Lobby screen
+<img width="1044" height="554" alt="gallery-1" src="https://github.com/user-attachments/assets/2b559383-903e-4a97-9be4-50484e4849c8" />
+- Board screen
+<img width="997" height="558" alt="gallery-2" src="https://github.com/user-attachments/assets/4ee33be1-c01c-4e59-a581-7a2643228fee" />
 - Clue Master board
+<img width="1135" height="909" alt="gallery-5" src="https://github.com/user-attachments/assets/5dd033d9-93d0-4b25-9422-ae33f3c10a9d" />
 - Guesser phone UI
-- Game over screen
+<img width="1067" height="858" alt="gallery-6" src="https://github.com/user-attachments/assets/e877cbcf-6c88-42e8-b6fb-d2c18d6fd311" />
 
 ---
 
