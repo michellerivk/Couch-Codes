@@ -110,3 +110,6 @@ This project was created to:
 - Designed for **LAN play only**
 - Single host per room
 - The room closes after the host leaves the game
+- In order to connect to the host, you need to change the visibility of the network from public to private
+<img width="672" height="193" alt="image" src="https://github.com/user-attachments/assets/62d839c4-3ad8-4e09-a488-183d15466a93" />
+
