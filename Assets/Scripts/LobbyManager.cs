@@ -232,7 +232,7 @@ public class LobbyManager : MonoBehaviour
             {
                 if (group.Count() > 1)
                 {
-                    _warning.text = ($"There are more than 1 Clue Master in the {group.Key} team.");
+                    _warning.text = ($"There is more than 1 Clue Master in the {group.Key} team.");
                     Debug.Log($"There are more than 1 Clue Master in the {group.Key} team");
                     return;
                 }

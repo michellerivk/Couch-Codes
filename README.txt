@@ -1,15 +1,5 @@
 Thanks for playing Couch Codes!
 
-IMPORTANT:
-
-* YOU NEED TO SET YOUR WIFI / ETHERNET TO PRIVATE!!!!!! & Disable VPNs to be able to connect with your phones.
-(Settings -> Network and Ethernet ->  Click on your current network -> private)
-
-* The game is for 4-10 players.
-
-
-About the game:
-
 To start the game, open the codenames-couchcodes.exe file and adjust the audio settings to your liking.
 
 Join a new lobby using the "Join Lobby" button at the top, and click accept when a pop-up opens up (will probably be NodeJS). 
@@ -17,3 +7,5 @@ Join a new lobby using the "Join Lobby" button at the top, and click accept when
 After you've clicked accept, wait for the game to recognize your IP and type the link (it will show up on the laptop screen) in chrome on your playing device (probably your phone).
 
 Press start and enjoy the game!
+
+* The game is for 4-10 players.
